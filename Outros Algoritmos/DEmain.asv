@@ -1,0 +1,229 @@
+%DE
+% Developer: Ezio Moura
+% ABC code based on "Parameter identification of solar cells using
+% artificial bee colony optimization" % by Oliva, Diego; Cuevas, Erik; Pajares, Gonzalo.
+% and A powerful and Efficient Algorithm for Numerical Function Optimization: Artificial Bee Colony (ABC) Algorithm, D. Karaboga, B. Basturk, Journal of Global Optimization, Volume:39, Issue:3,pp:459-171, November 2007,ISSN:0925-5001 , doi: 10.1007/s10898-007-9149-x */
+%%
+
+clc; clear; close all;
+
+%% Dados de entrada
+load 'data/rtcFrance.mat'
+plotCurvesEveryRun = false;
+Vmed = [IVCurve.V];   % Vetor de tensoes medidas  [V]
+Imed = [IVCurve.I];   % Vetor de correntes medidas [A]
+Tc =   [IVCurve.T];   % Temperatura [ºC]
+Ns =   [IVCurve.Ns];  % Numero de celulas em serie
+%% Criterios de ajuste
+% var =      [Iph, I0, n, Rs, Rp];
+if Ns > 1
+    limite_inf = [0, 0, 1, 0, 0];            % limite inferior do módulo
+    limite_sup = [2, 50e-6, 50/36, 2, 2000]; % limite superior
+    %pop = 130;       % tamanho da populacao 200 /////100
+else
+    limite_inf = [0, 0, 1, 0, 0];         % limite inferior da célula
+    limite_sup = [1, 1e-6, 2, 0.5, 100]; % limite superior
+    %pop = 130;  % tamanho da populacao 200
+end
+
+pop = 50;
+maxIter = 1000;
+maxfes = 80;
+%maxIter = round(maxfes/(3*pop))
+
+RUNS = 10; % quantidade de rodadas
+
+graphic = false; % deseja plotar curvas IV?
+%%
+converg_curve = zeros(RUNS, maxIter);
+for i = 1:RUNS
+fprintf('teste %d \n', i)
+tic
+[Iph, I0, n, Rs, Rp, RMSE, converg_curve(i,:)] =  DE(Vmed, Imed, Ns, Tc, limite_inf, limite_sup, pop, maxIter, true);
+elapseTime(i) = toc;
+fprintf(' Parametros obtidos:')
+fprintf('\n Iph(A) = %f', Iph);
+fprintf('\n I0(uA) = %f', I0*10^6);
+fprintf('\n n = %f', n);
+fprintf('\n Rs(ohms) = %f', Rs);
+fprintf('\n Rp(ohms) = %f', Rp);
+fprintf('\n RMSE = %f *10^-3\n', RMSE*10^3);
+%% plotagem do modelo obtido
+if plotCurvesEveryRun
+    plot(Vmed, Imed,'or');
+    hold on
+    k = 1.3806503e-23; q = 1.60217646e-19;
+    T = Tc + 273.15; % temperatura [K]
+    Vt = Ns*k*T/q;
+    
+    modelo = @(V,I) (I - Iph + I0*(exp((V+I*Rs)/(n*Vt))-1) + (V+I*Rs)/Rp);
+    fimplicit(modelo,[0 max(Vmed)*1.03 0 max(Imed)*1.03]);
+    title('Curva IV - ', 'FontSize',18,'FontWeight','bold');
+    xlim([0, max(Vmed)*1.03]);
+    ylim([0, max(Imed)*1.03]);
+    fprintf('\n')
+    hold off
+end
+%% vetores
+vIph(i) = Iph;
+vI0(i) = I0;
+vn(i) = n;
+vRs(i) =  Rs;
+vRp(i) = Rp;
+vRMSE(i) = RMSE;
+end
+%% plota melhor resultado
+[~, id] = min(vRMSE);
+Iph = vIph(id);
+I0 = vI0(id);
+Rs = vRs(id);
+Rp = vRp(id);
+n = vn(id);
+k = 1.3806503e-23; q = 1.60217646e-19;
+T = Tc + 273.15; % temperatura [K]
+Vt = Ns*k*T/q;
+fig = figure;
+modelo = @(V,I) (I - Iph + I0*(exp((V+I*Rs)/(n*Vt))-1) + (V+I*Rs)/Rp);
+fimplicit(modelo,[0 max(Vmed)*1.03 0 max(Imed)*1.03],'b-','LineWidth',2);
+%title(IVCurve.name, 'FontSize',18,'FontWeight','bold');
+xlim([0, max(Vmed)*1.03]);
+ylim([0, max(Imed)*1.03]);
+xlabel('Tensão (V)', 'FontSize',18);
+ylabel('Corrente (A)', 'FontSize',18);
+fprintf('\n')
+hold on
+plot(Vmed, Imed,'ro','MarkerSize',7);
+leg1 = legend({'Modelo estimado', 'Dados medidos'}, 'FontSize',14);
+leg1.Location = 'southwest';
+leg1.AutoUpdate = 'off';
+
+%magnifyOnFigure(fig, 'initialPositionSecondaryAxes', [300 200 90 110],...
+%                    'initialPositionMagnifier',[360 370 35 40], ...
+%                     'secondaryAxesFaceColor', [1 1 1]);
+%%
+fprintf(' Parametros MÍNIMOS obtidos:')
+fprintf('\n Iph(A) = %f', min(vIph));
+fprintf('\n I0(uA) = %f', min(vI0)*10^6);
+fprintf('\n n = %f', min(vn));
+fprintf('\n Rs(ohms) = %f', min(vRs));
+fprintf('\n Rp(ohms) = %f', min(vRp));
+fprintf('\n RMSE = %f *10^-3\n', min(vRMSE)*10^3);
+vetorDEminimo = [min(vIph);min(vI0)*10^6;min(vn);min(vRs);min(vRp); min(vRMSE)]; 
+
+fprintf(' Parametros MÁXIMOS obtidos:')
+fprintf('\n Iph(A) = %f', max(vIph));
+fprintf('\n I0(uA) = %f', max(vI0)*10^6);
+fprintf('\n n = %f', max(vn));
+fprintf('\n Rs(ohms) = %f', max(vRs));
+fprintf('\n Rp(ohms) = %f', max(vRp));
+fprintf('\n RMSE = %f *10^-3\n', max(vRMSE)*10^3);
+vetorDEmaximo = [max(vIph);max(vI0)*10^6;max(vn);max(vRs);max(vRp); max(vRMSE)]; 
+
+fprintf(' Parametros MÉDIOS obtidos:')
+fprintf('\n Iph(A) = %f', mean(vIph));
+fprintf('\n I0(uA) = %f', mean(vI0)*10^6);
+fprintf('\n n = %f', mean(vn));
+fprintf('\n Rs(ohms) = %f', mean(vRs));
+fprintf('\n Rp(ohms) = %f', mean(vRp));
+fprintf('\n RMSE = %f *10^-3\n', mean(vRMSE)*10^3);
+vetorDEmedia = [mean(vIph);mean(vI0)*10^6;mean(vn);mean(vRs);mean(vRp);mean(vRMSE)];
+
+fprintf('\n Desvio Padrao:')
+fprintf('\n std_Iph(A) = %f', std(vIph));
+fprintf('\n std_I0(uA) = %f', std(vI0)*10^6);
+fprintf('\n std_n = %f', std(vn));
+fprintf('\n std_Rs(ohms) = %f', std(vRs));
+fprintf('\n std_Rp(ohms) = %f', std(vRp));
+fprintf('\n std_RMSE = %f *10^-3\n', std(vRMSE)*10^3);
+vetorDEstd = [std(vIph);std(vI0)*10^6;std(vn);std(vRs);std(vRp); std(vRMSE)];
+vetorDEtudo = [vetorDEminimo, vetorDEmaximo, vetorDEmedia, vetorDEstd];
+
+fprintf('\n Tempo médio de execução = %f \n', mean(elapseTime));
+converg_curve_mean = mean(converg_curve);
+figure
+%nfes = 3*pop:3*pop:3*pop*maxIter;
+%semilogy(nfes, converg_curve_mean,'b')
+plot(converg_curve_mean,'b')
+xlabel('Iterações', 'FontSize',18);
+ylabel('RMSE', 'FontSize',18);
+%ylim([0, min(converg_curve_mean)*3]);
+ylim([10^-3, 10^-1])
+xlim([0,length(converg_curve_mean)])
+
+figure
+boxplot(vRMSE.')
+ylim([0.8, 2.2]*10^-3)
+xlabel('BFS','FontSize',18);
+
+
+
+%%
+function [Iph, I0, n, Rs, Rp, RMSE, conver_curve] = DE(Vmed, Imed, Ns, T, LB, UB, POP_SIZE, MAX_ITER, seeConverg)
+% Vmed e Imed devem ser vetores coluna
+% LB e UB devem ser vetores linha [1,dim]
+%% constantes
+k = 1.3806503e-23;    % Boltzmann [J/K]
+q = 1.60217646e-19;   % Electron charge [C]
+T = T + 273.15;       % Tempeture [K]
+Vt = Ns*k*T/q;
+%% parâmetros do algoritmo
+DIM = length(LB); % qtd de variaveis de design
+F = 0.95;
+CR = 0.8;
+%maxIter = max_fes/(N); % numero maximo de iterações
+%% Inicializa a populacao
+x = LB + (UB - LB).*rand(POP_SIZE, DIM);
+fit = fobj(x, Vmed, Imed, Vt, POP_SIZE);
+if seeConverg
+    conver_curve = zeros(1,MAX_ITER);
+end
+for iter = 1:MAX_ITER
+    %% 1 - Mutation (DE/RAND/1)
+    for i = 1:POP_SIZE
+        r = randperm(POP_SIZE, 3);
+        r = r(r ~= i);
+        v(i,:) = x(i,:) + F.*(x(r(1),:) - x(r(2),:));
+    end
+    %% 2 - Crossover
+    for i = 1:POP_SIZE
+        p = randi;
+        for j = 1:DIM
+            if rand <= CR | j == randi
+                u(i,j) = v(i,j);
+            else
+                u(i,j) = x(i,j);
+            end
+        end
+    end
+    %% 
+    % verificar limites
+    xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE);
+    
+    % avalia a nova posicao
+    fitNew = fobj(xNew, Vmed, Imed, Vt, POP_SIZE); % avalia nova posicao
+    [x, fit] =  updatePosition(x, fit, xNew, fitNew);
+end
+[MSE, id] = min(fit);
+RMSE = sqrt(MSE);
+xBest = x(id,:);
+Iph = xBest(1);
+I0 = xBest(2);
+n = xBest(3);
+Rs = xBest(4);
+Rp = xBest(5);
+end
+
+function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
+%% LB e UB devem ser matrizes com dimensao [nBirds, dim]
+    u = (xNew < LB) | (xNew > UB);
+    randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
+    xNew(u) = randomMatrix(u);
+end
+
+function [x, fit] =  updatePosition(x, fit, xNew, fitNew)
+    isBetter = fitNew < fit;
+    if any(isBetter)
+        fit(isBetter) = fitNew(isBetter);
+        x(isBetter, :) = xNew(isBetter, :);
+    end
+end
