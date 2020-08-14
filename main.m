@@ -27,8 +27,9 @@ else
     limite_sup = [1, 1e-6, 2, 0.5, 100];     % limite superior
 end
 %% Define a função objetivo
-obj = makeFobj(Vmed, Imed, Ns, Tc);
-fobj = @obj.Fobj;
+addpath('.\Funções Objetivo')
+fun = makeFobj(Vmed, Imed, Ns, Tc);
+fobj = @fun.Fobj;
 
 %% pre alocação
 %converg_curve = zeros(RUNS, maxIter);
@@ -45,10 +46,7 @@ for i = 1: length(selAlgo)
     for run = 1:RUNS
         fprintf('\nExecução %d \n', run)
         tic
-        [x, MSE(run), converg(run).MSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, pop, maxFes, true);
-        
-        RMSE(run) = sqrt(MSE(run));
-        converg(run).RMSE = sqrt(converg(run).MSE);
+        [x, RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, pop, maxFes, true);
         
         Iph(run) = x(1);
         I0(run) = x(2);

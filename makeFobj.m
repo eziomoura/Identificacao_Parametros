@@ -20,7 +20,7 @@ classdef makeFobj
         
         function y = Fobj(this, x) 
             [POP_SIZE,~] = size(x);
-             y = objectiveFunction(x, this.Vmed, this.Imed, this.Vt, POP_SIZE);
+             y = RMSE_CURRENT_ONE_DIODE(x, this.Vmed, this.Imed, this.Vt, POP_SIZE);
         end
     end
 end

@@ -1,7 +1,6 @@
 %% funcao objetivo, modelo de um diodo
 
-function [MSE] = fobj(x, Vmed, Imed, Vt, POP_SIZE)
-% sqrt foi removido para melhorar performace
+function [RMSE] = RMSE_CURRENT_ONE_DIODE(x, Vmed, Imed, Vt, POP_SIZE)
 % Imed and Vmed must be a collum vector
 l = length(Imed);
 %     mImed = Imed.*ones(popSize, 1);
@@ -13,7 +12,7 @@ I0 = x(:,2);
 n = x(:,3);
 Rs = x(:,4);
 Rp = x(:,5);
-MSE = sum((mImed - Iph + I0.*(exp((mVmed + mImed.*Rs)./(n*Vt))-1) + (mVmed + mImed.*Rs)./Rp).^2.')/l;
+RMSE = sqrt(sum((mImed - Iph + I0.*(exp((mVmed + mImed.*Rs)./(n*Vt))-1) + (mVmed + mImed.*Rs)./Rp).^2.')/l);
 
 %     % sqrt foi removido para melhorar performace
 % MSE = zeros(1,popSize); % pre-alocacao de memoria
