@@ -34,13 +34,13 @@ function [Iph, I0, n, Rs, Rp, RMSE, converg_RMSE, converg_fes] = ABC(fobj, LB, U
 DIM = length(LB); % qtd de variaveis de design
 LIMIT = 100; % numero de tentativas de melhoramento de uma fonte de alimentos
 % A quantidade de fontes de alimento é igual ao quantidade de employed bees
-nEmp = POP_SIZE; % number of employed bees
+NUM_FOODS = POP_SIZE; % number of employed bees
 %% inicialização da população
-x = LB + (UB - LB).*rand(nEmp, DIM); % População
+x = LB + (UB - LB).*rand(NUM_FOODS, DIM); % População
 fobjValue = fobj(x); % Valor da função objetivo para cada solução candidata
 fitValue = fitness(fobjValue); % Fitness de cada x. Quanto maior melhor.
-trial = zeros(1,nEmp); % Quantidade de tentativas de melhoramento de uma solução
-fes = nEmp; % Quantidade de avalições da função objetivo
+trial = zeros(1,NUM_FOODS); % Quantidade de tentativas de melhoramento de uma solução
+fes = NUM_FOODS; % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
 if showConverg
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
@@ -50,16 +50,16 @@ if showConverg
     converg_fes(1) = fes;
 end
 iter = 1;
-while(fes + 2*nEmp + 1 <= MAX_FES)
+while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
     %% Fase Employed bees
-    for i = 1:nEmp
+    for i = 1:NUM_FOODS
         % Parametro que será alterado
         j = randi(DIM);
         
         % seleccionar uma abelha diferente de i
-        k = randi(nEmp);   
+        k = randi(NUM_FOODS);   
         while(k == i)
-            k = randi(nEmp);
+            k = randi(NUM_FOODS);
         end
         
         phi = 2*rand - 1; % random number between -1 and 1
@@ -88,12 +88,12 @@ while(fes + 2*nEmp + 1 <= MAX_FES)
 
     %% Fase das onlooker bees
     prob = fitValue/sum(fitValue); % probabilidade de uma fonte de comida ser selecionada
-    for i = 1:nEmp
+    for i = 1:NUM_FOODS
         if(prob(i) > rand)
-            j = randi(DIM);    % Parâmetro que será alterado
-            k = randi(nEmp);   % Seleciona outra fonte de alimentos
+            j = randi(DIM);         % Parâmetro que será alterado
+            k = randi(NUM_FOODS);   % Seleciona outra fonte de alimentos
             while(k == i)
-                k = randi(nEmp);
+                k = randi(NUM_FOODS);
             end
             
             phi = 2*rand - 1;
@@ -123,7 +123,7 @@ while(fes + 2*nEmp + 1 <= MAX_FES)
     
     %% SCOUT BEE
     % Há no máximo uma scout por fase
-    fes = fes + 2*nEmp;
+    fes = fes + 2*NUM_FOODS;
     [~, ind] =  max(trial);
     if (trial(ind) > LIMIT)
         trial(ind) = 0;
