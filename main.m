@@ -2,7 +2,7 @@ clc; clear; close all;
 % OBS: MSE deve ser retornado como vetor coluna
 
 %%
-selAlgo = {'TLBO','BFS'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'ABC','BFS'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % Lista de todos algoritmos disponíveis
 RUNS = 10; % quantidade de execuções distintas
 pop = 50; % tamanho da população (>5)

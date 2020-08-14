@@ -1,7 +1,7 @@
-function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_FES, showConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
-%   ABC miniza a fobj usando a metaheurística Artificial
-% Bee Colony, conforme descrita em [1] e [2].
+%   ABC miniza a fobj usando a metaheurística "Artificial
+%  Bee Colony", conforme descrito em [1] e [2].
 %
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -9,7 +9,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
 %           referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:
@@ -21,34 +21,38 @@ function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_
 %
 % Fontes:
 %   [1] OLIVA, D.; CUEVAS, E.; PAJARES, G. Parameter identification of solar cells using artificial bee colony optimization. Energy, v. 72, p. 93 – 102, 2014.
-%   [2] KARABOGA, D.; BASTURK, B. A powerful and efficient algorithm for numerical function optimization: Artificial bee colony (ABC) algorithm. Journal of Global Optimization, v. 39, n. 3,p. 459–471, 2007. ISSN 09255001
+%   [2] KARABOGA, D.; AKAY, B. A comparative study of Artificial Bee Colony algorithm. Applied Mathematics and Computation, Elsevier Inc., v. 214, n. 1, p. 108–132, 2009. ISSN 00963003. Disponível em: <http://dx.doi.org/10.1016/j.amc.2009.03.090>
 %% parâmetros do algoritmo
-DIM = length(LB); % qtd de variaveis de design
 LIMIT = 100; % numero de tentativas de melhoramento de uma fonte de alimentos
+
+%% 
+DIM = length(LB); % qtd de variaveis de design
+
 % A quantidade de fontes de alimento é igual ao quantidade de employed bees
-NUM_FOODS = POP_SIZE; % number of employed bees
-%% inicialização da população
+NUM_FOODS = POP_SIZE;
+
+% inicialização da população
 x = LB + (UB - LB).*rand(NUM_FOODS, DIM); % População
-fobjValue = fobj(x); % Valor da função objetivo para cada solução candidata
+fobjValue = fobj(x);           % Valor da função objetivo para cada solução candidata
 fitValue = fitness(fobjValue); % Fitness de cada x. Quanto maior melhor
-trial = zeros(1,NUM_FOODS); % Quantidade de tentativas de melhoramento de uma solução
-fes = NUM_FOODS; % Quantidade de avalições da função objetivo
+trial = zeros(1,NUM_FOODS);    % Quantidade de tentativas de melhoramento de uma solução
+fes = NUM_FOODS;               % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
-if showConverg
+if SHOW_CONVERG
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
     fBestCurve = zeros(MAX_ITER +1,1);
     fesCurve = zeros(MAX_ITER +1,1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
-iter = 1;
+iter = 1; % contador de iterações
 while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
     %% Fase Employed bees
     for i = 1:NUM_FOODS
         % Parametro que será alterado
         j = randi(DIM);
         
-        % seleccionar uma abelha diferente de i
+        % selecionar uma abelha diferente de i
         k = randi(NUM_FOODS);   
         while(k == i)
             k = randi(NUM_FOODS);
@@ -61,7 +65,11 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
         v(j) = x(i,j) + phi*(x(k,j) - x(i,j)); 
         
         % checar limitantes
-        v(v(j) < LB(j) | v(j) > UB(j)) = UB(j) - rand*(UB(j) - LB(j));
+        if v(j) < LB(j)
+            v(j) = LB(j);
+        elseif v(j) > UB(j)
+            v(j) = UB(j);
+        end
         
         % avaliar a nova solução
         fobjValueNew = fobj(v);
@@ -95,7 +103,11 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
             v(j) = x(i,j) + phi*(x(k,j) - x(i,j));
             
             % Checa limitantes
-            v(v(j) < LB(j) | v(j) > UB(j)) = UB(j) - rand*(UB(j) - LB(j));
+            if v(j) < LB(j)
+                v(j) = LB(j);
+            elseif v(j) > UB(j)
+                v(j) = UB(j);
+            end
             
             % Avalia nova solução
             fobjValueNew = fobj(v);
@@ -126,7 +138,7 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
     end
     % Atualiza curva de convergencia
     iter = iter +1;
-    if showConverg
+    if SHOW_CONVERG
         fBestCurve(iter,1) = min(fobjValue);
         fesCurve(iter,1) = fes;
     end
