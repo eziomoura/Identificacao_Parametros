@@ -12,8 +12,6 @@ switch algoSelected
         f = @TLBO;
     case 'ITLBO'
         f = @ITLBO;
-    case 'TLBO2'
-        f = @TLBO2;
         % BFS
     case 'BFS'
         f = @BFS;
