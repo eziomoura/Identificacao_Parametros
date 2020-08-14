@@ -1,8 +1,26 @@
-% Developer: Ezio Moura
-% PSO code based on "Parameter extraction of solar cells using particle swarm
-% optimization" by Meiying Ye, Xiaodong Wang, and Yousheng Xu
-%%
-function [Iph, I0, n, Rs, Rp, RMSE, converg_RMSE, converg_fes] = PSO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+% Descrição
+%     XXXX miniza a fobj usando a metaheurística XXXXX,
+% conforme descrita em [1] e [2].
+% Entradas:
+%   fobj - Função objetivo a ser minimizada
+%   LB - Vetor linha com os limites inferiores de cada parâmetro
+%   UB - Vetor linha com os limites superior de cada parâmetro
+%   POP_SIZE - Inteiro com o tamanho da população
+%   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
+%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%       referentes a curva de convergêngia (converg_RMSE e converg_fes)
+%        
+% Saídas:
+%   xBest - Vetor com os parâmetros que minimizam fobj
+%   fBest - Valor da fobj avaliada em xBest
+%   fBestCurve - Vetor com o fBest ao final de cada iteração
+%   fesCurve - Vetor com o número de avalições  da função objetivo ao
+%       final de cada iteração
+%
+% Fontes:
+%   [1] 
+%   [2]
 %% parâmetros do algoritmo
 dim = length(LB); % qtd de variaveis de design
 c1 = 2;
@@ -23,10 +41,10 @@ gBest = x(idBest,:); % global best
 fes = POP_SIZE;
 if seeConverg
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
-    converg_RMSE = zeros(MAX_ITER + 1, 1);
-    converg_fes = zeros(MAX_ITER + 1, 1);
-    converg_RMSE(1) = sqrt(min(fobjValue));
-    converg_fes(1) = fes;
+    fBestCurve = zeros(MAX_ITER + 1, 1);
+    fesCurve = zeros(MAX_ITER + 1, 1);
+    fBestCurve(1) = min(fobjValue);
+    fesCurve(1) = fes;
 end
 iter = 1;
 while(fes+POP_SIZE <= MAX_FES)
@@ -62,15 +80,10 @@ while(fes+POP_SIZE <= MAX_FES)
     iter = iter + 1;
     
     if seeConverg
-        converg_RMSE(iter,1) = sqrt(gBestFit);
-        converg_fes(iter,1) = fes;
+        fBestCurve(iter,1) = gBestFit;
+        fesCurve(iter,1) = fes;
     end
 end
-
-RMSE = sqrt(gBestFit);
-Iph = gBest(1);
-I0 = gBest(2);
-n = gBest(3);
-Rs = gBest(4);
-Rp = gBest(5);
+xBest = gBest;
+fBest = gBestFit;
 end

@@ -1,9 +1,26 @@
-% JADE
-% Developer: Ezio Moura
-%%
-function [Iph, I0, n, Rs, Rp, RMSE, RMSE_curve, fes_curve] = JADE(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
-% Vmed e Imed devem ser vetores coluna
-% LB e UB devem ser vetores linha [1,dim]
+function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+% Descrição
+%     XXXX miniza a fobj usando a metaheurística XXXXX,
+% conforme descrita em [1] e [2].
+% Entradas:
+%   fobj - Função objetivo a ser minimizada
+%   LB - Vetor linha com os limites inferiores de cada parâmetro
+%   UB - Vetor linha com os limites superior de cada parâmetro
+%   POP_SIZE - Inteiro com o tamanho da população
+%   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
+%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%       referentes a curva de convergêngia (converg_RMSE e converg_fes)
+%        
+% Saídas:
+%   xBest - Vetor com os parâmetros que minimizam fobj
+%   fBest - Valor da fobj avaliada em xBest
+%   fBestCurve - Vetor com o fBest ao final de cada iteração
+%   fesCurve - Vetor com o número de avalições  da função objetivo ao
+%       final de cada iteração
+%
+% Fontes:
+%   [1] 
+%   [2]
 %% parâmetros do algoritmo
 DIM = length(LB); % qtd de variaveis de design
 c = 0.1;
@@ -18,8 +35,8 @@ fit = fobj(x);
 iter = 1;
 fes = POP_SIZE;
 if seeConverg
-    RMSE_curve(iter) = sqrt(min(fit));
-    fes_curve(iter) = fes;
+    fBestCurve(iter) = min(fit);
+    fesCurve(iter) = fes;
 end
 while(fes + POP_SIZE <= MAX_FES)
     S_CR = []; S_F = [];
@@ -97,19 +114,13 @@ while(fes + POP_SIZE <= MAX_FES)
     uCR = (1 - c)*uCR + c*mean(S_CR);
     uF = (1 - c)*uF + c*lehmarMean(S_F);
     if seeConverg
-        RMSE_curve(iter+1,1) = sqrt(min(fit));
-        fes_curve(iter+1,1) = fes;
+        fBestCurve(iter+1,1) = min(fit);
+        fesCurve(iter+1,1) = fes;
     end
     iter = iter + 1;
 end
-[MSE, id] = min(fit);
-RMSE = sqrt(MSE);
+[fBest, id] = min(fit);
 xBest = x(id,:);
-Iph = xBest(1);
-I0 = xBest(2);
-n = xBest(3);
-Rs = xBest(4);
-Rp = xBest(5);
 end
 
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)

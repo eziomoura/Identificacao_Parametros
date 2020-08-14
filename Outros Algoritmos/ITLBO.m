@@ -1,9 +1,29 @@
 %%
 % o autor não indica em qual etapa faz a restrição das variáveis
 %%
-function [Iph, I0, n, Rs, Rp, RMSE, RMSE_curve, fes_curve] = ITLBO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
-% Vmed e Imed devem ser vetores coluna
-% LB e UB devem ser vetores linha [1,dim]
+function [xBest, fBest, fBestCurve, fesCurve] = ITLBO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+% Descrição
+%     XXXX miniza a fobj usando a metaheurística XXXXX,
+% conforme descrita em [1] e [2].
+% Entradas:
+%   fobj - Função objetivo a ser minimizada
+%   LB - Vetor linha com os limites inferiores de cada parâmetro
+%   UB - Vetor linha com os limites superior de cada parâmetro
+%   POP_SIZE - Inteiro com o tamanho da população
+%   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
+%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%       referentes a curva de convergêngia (converg_RMSE e converg_fes)
+%        
+% Saídas:
+%   xBest - Vetor com os parâmetros que minimizam fobj
+%   fBest - Valor da fobj avaliada em xBest
+%   fBestCurve - Vetor com o fBest ao final de cada iteração
+%   fesCurve - Vetor com o número de avalições  da função objetivo ao
+%       final de cada iteração
+%
+% Fontes:
+%   [1] 
+%   [2]
 DIM = length(LB);     % qtd de variaveis de design
 %%
 % Generation of initial population
@@ -17,10 +37,10 @@ MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
 
 % pre alocacao da curva de convergência
 if seeConverg
-    RMSE_curve = zeros(MAX_ITER + 1, 1);
-    fes_curve =  zeros(MAX_ITER + 1, 1);
-    RMSE_curve(1) = min(fit);
-    fes_curve(1) = fes;
+    fBestCurve = zeros(MAX_ITER + 1, 1);
+    fesCurve =  zeros(MAX_ITER + 1, 1);
+    fBestCurve(1) = min(fit);
+    fesCurve(1) = fes;
 end
 
 iter = 1; % contador de iteracoes
@@ -47,10 +67,10 @@ while(fes+2*POP_SIZE <= MAX_FES)
             xNew = x(i,:) + rand*(xBest - TF*xMean);
         end
         
-        % Bounding of the solution
+        % Checar limites
         xNew = boudaryCorrection(xNew, LB, UB, DIM, 1);        
         
-        % Evaluation of objective function
+        % avaliar a nova solucao
         fitNew = fobj(xNew);
         
         % Greedy selection
@@ -71,10 +91,10 @@ while(fes+2*POP_SIZE <= MAX_FES)
                           + rand*(x(idRand(3),:) - x(idRand(4),:));
         end
         
-        % Bounding of the solution
+        % Checar limites
         xNew = boudaryCorrection(xNew, LB, UB, DIM, 1);
         
-        % Evaluation of objective function
+        % Avaliar funçaõ objetivo
         fitNew = fobj(xNew);
         
         % Greedy selection
@@ -88,20 +108,13 @@ while(fes+2*POP_SIZE <= MAX_FES)
     iter = iter + 1;
     
     if seeConverg
-        RMSE_curve(iter) = min(fit);
-        fes_curve(iter) = fes;
+        fBestCurve(iter) = min(fit);
+        fesCurve(iter) = fes;
     end  
 end
-% Extracting the best solution
-[MSE, id] = min(fit);
-RMSE = sqrt(MSE);
-RMSE_curve = sqrt(RMSE_curve);
+% Melhor solução
+[fBest, id] = min(fit);
 xBest = x(id,:);
-Iph = xBest(1);
-I0 = xBest(2);
-n = xBest(3);
-Rs = xBest(4);
-Rp = xBest(5);
 end
 %%
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)

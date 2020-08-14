@@ -1,17 +1,40 @@
-function [Iph, I0, n, Rs, Rp, RMSE, converg_RMSE, converg_fes] = IJAYA(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBest_curve, fes_curve] = IJAYA(fobj, LB, UB, POP_SIZE, MAX_FES, showConverg)
+% Descrição
+%     XXXX miniza a fobj usando a metaheurística XXXXX,
+% conforme descrita em [1] e [2].
+% Entradas:
+%   fobj - Função objetivo a ser minimizada
+%   LB - Vetor linha com os limites inferiores de cada parâmetro
+%   UB - Vetor linha com os limites superior de cada parâmetro
+%   POP_SIZE - Inteiro com o tamanho da população
+%   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
+%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%       referentes a curva de convergêngia (converg_RMSE e converg_fes)
+%        
+% Saídas:
+%   xBest - Vetor com os parâmetros que minimizam fobj
+%   fBest - Valor da fobj avaliada em xBest
+%   fBestCurve - Vetor com o fBest ao final de cada iteração
+%   fesCurve - Vetor com o número de avalições  da função objetivo ao
+%       final de cada iteração
+%
+% Fontes:
+%   [1] 
+%   [2]
+
 DIM = length(LB);
 %% Populacao inicial
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);     % Avalicao do fitness de cada individuo
-fes = POP_SIZE; % Quantidade de avaliações da função objetivo
+fes = POP_SIZE;    % Quantidade de avaliações da função objetivo
 
 %% Dados da curva de convergência
-if seeConverg
+if showConverg
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
-    converg_RMSE = zeros(MAX_ITER +1,1);
-    converg_fes = zeros(MAX_ITER +1,1);
-    converg_RMSE(1) = sqrt(min(fit));
-    converg_fes(1) = fes;
+    fBest_curve = zeros(MAX_ITER +1,1);
+    fes_curve = zeros(MAX_ITER +1,1);
+    fBest_curve(1) = min(fit);
+    fes_curve(1) = fes;
 end
 z = rand; % Inicializacao do mapa logistico
 iter = 1; % contador de iterações
@@ -22,33 +45,35 @@ while(fes + POP_SIZE <= MAX_FES)
     xWorst = x(id(end),:);
     %% funcao peso
     if(fit(id(end)) == 0)
-        ww = 1;
+        w = 1;
     else
-        ww = abs(fit(id(1))/(fit(id(end))))^2;
+        w = abs(fit(id(1))/(fit(id(end))))^2;
     end
     %% atualiza a posicao de cada individuo
-    for i = 1:POP_SIZE 
-        if i ~= id(1) % se nao for o melhor
+    for i = 1:POP_SIZE
+        % se nao for o melhor
+        if i ~= id(1) 
             if rand < rand % usa eq 12: Self-adaptive weight
-                xNew = x(i,:) + rand(1,DIM).*(xBest - abs(x(i,:))) - ww*rand(1,DIM).*(xWorst - abs(x(i,:)));
+                xNew = x(i,:) + rand(1,DIM).*(xBest - abs(x(i,:))) - w*rand(1,DIM).*(xWorst - abs(x(i,:)));
             else % usa eq 13: Experience-based learning strategy
                 randInd = randperm(POP_SIZE,3);
                 randInd(i == randInd) = [];
                 if fit(randInd(1)) < fit(randInd(2))
-                    xNew = x(i,:) + rand(1,DIM).*(x(randInd(1),:) -x(randInd(2),:));
+                    xNew = x(i,:) + rand(1,DIM).*(x(randInd(1),:) - x(randInd(2),:));
                 else
-                    xNew = x(i,:) - rand(1,DIM).*(x(randInd(1),:) -x(randInd(2),:));
+                    xNew = x(i,:) - rand(1,DIM).*(x(randInd(1),:) - x(randInd(2),:));
                 end
             end
-        else % se for o melhor
+        % se for o melhor
+        else 
             z = 4*z*(1 - z);
             xNew = xBest + (2*z - 1).*rand(1,DIM);
         end
         
-        % faz checagem de bordas
+        % Faz checagem de bordas
         xNew = checkBoundary(xNew, LB, UB, 1, DIM);
         
-        % avalia a nova populacao
+        % avalia o novo individuo
         fitNew = fobj(xNew);
         fes = fes+1;
         if fitNew < fit(i)
@@ -57,19 +82,13 @@ while(fes + POP_SIZE <= MAX_FES)
         end
     end % fim da atualiação a posicao de cada individuo
     iter = iter +1;
-    if seeConverg
-        converg_RMSE(iter,1) = sqrt(min(fit));
-        converg_fes(iter,1) = fes;
+    if showConverg
+        fBest_curve(iter,1) = min(fit);
+        fes_curve(iter,1) = fes;
     end
 end % encerra quantidade maxima de avaliacoes da funcao objetivo
-[MSE, id] = min(fit);
-RMSE = sqrt(MSE);
+[fBest, id] = min(fit);
 xBest = x(id,:);
-Iph = xBest(1);
-I0 = xBest(2);
-n = xBest(3);
-Rs = xBest(4);
-Rp = xBest(5);
 end
 
 function xNew = checkBoundary(xNew, lb, ub, popSize, dim)

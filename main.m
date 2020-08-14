@@ -1,12 +1,12 @@
 clc; clear; close all;
-% OBS: RMSE deve ser retornado como vetor coluna
+% OBS: MSE deve ser retornado como vetor coluna
 
 %%
-selAlgo = {'all'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'TLBO','JADE', 'PSO'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % Lista de todos algoritmos disponíveis
 RUNS = 10; % quantidade de execuções distintas
 pop = 50; % tamanho da população (>5)
-maxFes = 2*10000; % numero maximo de avalicoes da funcao objetivo
+maxFes = 10000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
@@ -30,7 +30,7 @@ end
 obj = makeFobj(Vmed, Imed, Ns, Tc);
 fobj = @obj.Fobj;
 
-%% pre alocate
+%% pre alocação
 %converg_curve = zeros(RUNS, maxIter);
 elapsedTime = zeros(1,RUNS);
 Iph = zeros(RUNS,1); I0 = zeros(RUNS,1); n = zeros(RUNS,1);
@@ -45,7 +45,17 @@ for i = 1: length(selAlgo)
     for run = 1:RUNS
         fprintf('\nExecução %d \n', run)
         tic
-        [Iph(run), I0(run), n(run), Rs(run), Rp(run), RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, pop, maxFes, true);
+        [x, MSE(run), converg(run).MSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, pop, maxFes, true);
+        
+        RMSE(run) = sqrt(MSE(run));
+        converg(run).RMSE = sqrt(converg(run).MSE);
+        
+        Iph(run) = x(1);
+        I0(run) = x(2);
+        n(run) = x(3);
+        Rs(run) = x(4);
+        Rp(run) = x(5);
+        
         elapsedTime(run) = toc;
         fprintf(' Iph(A) = %f', Iph(run));
         fprintf('\n I0(uA) = %f', I0(run)*10^6);

@@ -1,6 +1,26 @@
-function [Iph, I0, n, Rs, Rp, RMSE, RMSE_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
-% Vmed e Imed devem ser vetores coluna
-% LB e UB devem ser vetores linha [1,dim]
+function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+% Descrição
+%     XXXX miniza a fobj usando a metaheurística XXXXX,
+% conforme descrita em [1] e [2].
+% Entradas:
+%   fobj - Função objetivo a ser minimizada
+%   LB - Vetor linha com os limites inferiores de cada parâmetro
+%   UB - Vetor linha com os limites superior de cada parâmetro
+%   POP_SIZE - Inteiro com o tamanho da população
+%   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
+%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%       referentes a curva de convergêngia (converg_RMSE e converg_fes)
+%        
+% Saídas:
+%   xBest - Vetor com os parâmetros que minimizam fobj
+%   fBest - Valor da fobj avaliada em xBest
+%   fBestCurve - Vetor com o fBest ao final de cada iteração
+%   fesCurve - Vetor com o número de avalições  da função objetivo ao
+%       final de cada iteração
+%
+% Fontes:
+%   [1] 
+%   [2]
 %% parâmetros do algoritmo
 nBirds = POP_SIZE; % tamanho da pop
 DIM = length(LB); % qtd de variaveis de design
@@ -10,12 +30,12 @@ fit = fobj(x);
 fes = POP_SIZE; % quantidade de avaliação da função objetivo
 if SHOW_CONVERG
     MAX_ITER = floor((MAX_FES - POP_SIZE)/(3*POP_SIZE)); % numero maximo de iterações
-    RMSE_curve = zeros(MAX_ITER + 1, 1);
+    fBest_curve = zeros(MAX_ITER + 1, 1);
     fes_curve =  zeros(MAX_ITER + 1, 1);
-    RMSE_curve(1) = min(fit);
+    fBest_curve(1) = min(fit);
     fes_curve(1) = fes;
 else 
-    RMSE_curve = NaN; fes_curve = NaN;
+    fBest_curve = NaN; fes_curve = NaN;
 end
 xIncNew = zeros(nBirds-1, DIM);
 iter = 1;
@@ -100,18 +120,12 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     iter = iter + 1;
     
     if SHOW_CONVERG
-        RMSE_curve(iter,1) = sqrt(min(fit));
+        fBest_curve(iter,1) = min(fit);
         fes_curve(iter,1) = fes;
     end
 end
-[MSE, id] = min(fit);
-RMSE = sqrt(MSE);
+[fBest, id] = min(fit);
 xBest = x(id,:);
-Iph = xBest(1);
-I0 = xBest(2);
-n = xBest(3);
-Rs = xBest(4);
-Rp = xBest(5);
 end
 
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds)
