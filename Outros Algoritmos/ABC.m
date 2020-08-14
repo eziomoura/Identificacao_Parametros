@@ -1,7 +1,9 @@
 function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
 %   ABC miniza a fobj usando a metaheurística "Artificial
-%  Bee Colony", conforme descrito em [1] e [2].
+%  Bee Colony", conforme descrito em [1] e [2]. O parâmetro limit é
+%  especificado na ref [1]. O tratamento das restrições é adotado conforme
+%  [2].
 %
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -23,11 +25,10 @@ function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_
 %   [1] OLIVA, D.; CUEVAS, E.; PAJARES, G. Parameter identification of solar cells using artificial bee colony optimization. Energy, v. 72, p. 93 – 102, 2014.
 %   [2] KARABOGA, D.; AKAY, B. A comparative study of Artificial Bee Colony algorithm. Applied Mathematics and Computation, Elsevier Inc., v. 214, n. 1, p. 108–132, 2009. ISSN 00963003. Disponível em: <http://dx.doi.org/10.1016/j.amc.2009.03.090>
 %% parâmetros do algoritmo
-LIMIT = 100; % numero de tentativas de melhoramento de uma fonte de alimentos
-
-%% 
 DIM = length(LB); % qtd de variaveis de design
 
+% numero de tentativas de melhoramento de uma fonte de alimentos
+LIMIT = POP_SIZE*DIM;  % ref [1]
 % A quantidade de fontes de alimento é igual ao quantidade de employed bees
 NUM_FOODS = POP_SIZE;
 
@@ -58,7 +59,8 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
             k = randi(NUM_FOODS);
         end
         
-        phi = 2*rand - 1; % random number between -1 and 1
+        % numero aleatorio no intevalo [-1, 1]
+        phi = 2*rand - 1;   
         
         % produzir nova solução
         v = x(i,:);
