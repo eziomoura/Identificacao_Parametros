@@ -6,21 +6,32 @@ classdef makeFobj
         T
         k = 1.3806503e-23;    % Boltzmann [J/K] 1.380649 [1.38065040000000e-23]
         q = 1.60217646e-19;   % Electron charge [C]
-        Vt
+        Vt                    % tensão termica
+    end
+    
+    properties (Access = private)
+        f                     % função objetivo
+        typeFobj              % identificador da função objetivo
     end
     
     methods
-        function obj = makeFobj(Vmed, Imed, Ns, T)
-            obj.Vmed = Vmed;
-            obj.Imed = Imed;
-            obj.Ns = Ns;
-            obj.T = T + 273.15;
-            obj.Vt = Ns*obj.k*obj.T/obj.q;
+        function this = makeFobj(Vmed, Imed, Ns, T, typeFobj)
+            this.Vmed = Vmed;
+            this.Imed = Imed;
+            this.Ns = Ns;
+            this.T = T + 273.15;
+            this.Vt = Ns*this.k*this.T/this.q;
+            switch typeFobj
+                case 1
+                    this.f = @RMSE_CURRENT_ONE_DIODE;
+                otherwise
+                    error('função objetivo não encontrada');
+            end
         end
         
         function y = Fobj(this, x) 
             [POP_SIZE,~] = size(x);
-             y = RMSE_CURRENT_ONE_DIODE(x, this.Vmed, this.Imed, this.Vt, POP_SIZE);
+             y = this.f(x, this.Vmed, this.Imed, this.Vt, POP_SIZE);
         end
     end
 end

@@ -2,7 +2,7 @@ clc; clear; close all;
 % OBS: MSE deve ser retornado como vetor coluna
 
 %%
-selAlgo = {'TLBO','JADE', 'PSO'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'TLBO','BFS'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % Lista de todos algoritmos disponíveis
 RUNS = 10; % quantidade de execuções distintas
 pop = 50; % tamanho da população (>5)
@@ -28,7 +28,7 @@ else
 end
 %% Define a função objetivo
 addpath('.\Funções Objetivo')
-fun = makeFobj(Vmed, Imed, Ns, Tc);
+fun = makeFobj(Vmed, Imed, Ns, Tc, 1);
 fobj = @fun.Fobj;
 
 %% pre alocação
