@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     XXXX miniza a fobj usando a metaheurística XXXXX,
 % conforme descrita em [1] e [2].
@@ -8,7 +8,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:
@@ -34,7 +34,7 @@ x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
 iter = 1;
 fes = POP_SIZE;
-if seeConverg
+if SHOW_CONVERG
     fBestCurve(iter) = min(fit);
     fesCurve(iter) = fes;
 end
@@ -113,7 +113,7 @@ while(fes + POP_SIZE <= MAX_FES)
     end
     uCR = (1 - c)*uCR + c*mean(S_CR);
     uF = (1 - c)*uF + c*lehmarMean(S_F);
-    if seeConverg
+    if SHOW_CONVERG
         fBestCurve(iter+1,1) = min(fit);
         fesCurve(iter+1,1) = fes;
     end

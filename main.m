@@ -1,12 +1,12 @@
 clc; clear; close all;
-% OBS: MSE deve ser retornado como vetor coluna
-
+% OBS2: CIABC foi perda de tempo. Ver notas no arquivo
+% OBS: RMSE deve ser retornado como vetor coluna
 %%
-selAlgo = {'ABC','BFS'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'CIABC','ABC'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % Lista de todos algoritmos disponíveis
-RUNS = 10; % quantidade de execuções distintas
-pop = 50; % tamanho da população (>5)
-maxFes = 10000; % numero maximo de avalicoes da funcao objetivo
+RUNS = 30; % quantidade de execuções distintas
+pop = 200; % tamanho da população (>5)
+maxFes = 2*pop*1000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada

@@ -1,4 +1,4 @@
-function [xBest, fBest, fBest_curve, fes_curve] = IJAYA(fobj, LB, UB, POP_SIZE, MAX_FES, showConverg)
+function [xBest, fBest, fBest_curve, fes_curve] = IJAYA(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     XXXX miniza a fobj usando a metaheurística XXXXX,
 % conforme descrita em [1] e [2].
@@ -8,7 +8,7 @@ function [xBest, fBest, fBest_curve, fes_curve] = IJAYA(fobj, LB, UB, POP_SIZE, 
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   showConverg - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:
@@ -29,7 +29,7 @@ fit = fobj(x);     % Avalicao do fitness de cada individuo
 fes = POP_SIZE;    % Quantidade de avaliações da função objetivo
 
 %% Dados da curva de convergência
-if showConverg
+if SHOW_CONVERG
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
     fBest_curve = zeros(MAX_ITER +1,1);
     fes_curve = zeros(MAX_ITER +1,1);
@@ -82,7 +82,7 @@ while(fes + POP_SIZE <= MAX_FES)
         end
     end % fim da atualiação a posicao de cada individuo
     iter = iter +1;
-    if showConverg
+    if SHOW_CONVERG
         fBest_curve(iter,1) = min(fit);
         fes_curve(iter,1) = fes;
     end

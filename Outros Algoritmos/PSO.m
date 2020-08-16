@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     XXXX miniza a fobj usando a metaheurística XXXXX,
 % conforme descrita em [1] e [2].
@@ -39,7 +39,7 @@ gBest = x(idBest,:); % global best
 
 %% pre alocacao
 fes = POP_SIZE;
-if seeConverg
+if SHOW_CONVERG
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
     fBestCurve = zeros(MAX_ITER + 1, 1);
     fesCurve = zeros(MAX_ITER + 1, 1);
@@ -79,7 +79,7 @@ while(fes+POP_SIZE <= MAX_FES)
     fes = fes + POP_SIZE;
     iter = iter + 1;
     
-    if seeConverg
+    if SHOW_CONVERG
         fBestCurve(iter,1) = gBestFit;
         fesCurve(iter,1) = fes;
     end

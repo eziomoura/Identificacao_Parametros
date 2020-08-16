@@ -37,7 +37,8 @@ x = LB + (UB - LB).*rand(pop, DIM);
 fit = fobj(x);
 fes = pop;
 % if seeConverg
-%     conver_curve = zeros(1, MAX_FES/pop);
+%     conver_curve = zeros(1, MAX_FES/pop);  população muda de tamanho,
+%     cuidado!!!
 % end
 iter = 1;
 if seeConverg

@@ -1,6 +1,6 @@
 function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
-%   ABC miniza a fobj usando a metaheurística "Artificial
+%   ABC minimiza a fobj usando a metaheurística "Artificial
 %  Bee Colony", conforme descrito em [1] e [2]. O parâmetro limit é
 %  especificado na ref [1]. O tratamento das restrições é adotado conforme
 %  [2].
@@ -40,7 +40,7 @@ trial = zeros(1,NUM_FOODS);    % Quantidade de tentativas de melhoramento de uma
 fes = NUM_FOODS;               % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
+    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
     fBestCurve = zeros(MAX_ITER +1,1);
     fesCurve = zeros(MAX_ITER +1,1);
     fBestCurve(1) = min(fobjValue);
@@ -133,7 +133,7 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
     [~, ind] =  max(trial);
     if (trial(ind) > LIMIT)
         trial(ind) = 0;
-        x(ind,:) = LB + (UB-LB).*rand(1,DIM);
+        x(ind,:) = LB + (UB-LB).*rand(1,DIM); % ref [1]
         fobjValue(ind) = fobj(x(ind,:));
         fitValue(ind) = fitness(fobjValue(ind));
         fes = fes +1;

@@ -17,6 +17,8 @@ switch algoSelected
         f = @BFS;
     case 'ABC'
         f = @ABC;
+    case 'CIABC'
+        f = @CIABC;
     case 'PSO'
         f = @PSO;
     case 'IJAYA'
