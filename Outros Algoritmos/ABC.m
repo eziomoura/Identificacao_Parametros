@@ -40,9 +40,9 @@ trial = zeros(1,NUM_FOODS);    % Quantidade de tentativas de melhoramento de uma
 fes = NUM_FOODS;               % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
-    fBestCurve = zeros(MAX_ITER +1,1);
-    fesCurve = zeros(MAX_ITER +1,1);
+%    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
+%     fBestCurve = zeros(MAX_ITER +1,1);
+%     fesCurve = zeros(MAX_ITER +1,1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
@@ -76,6 +76,7 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
         % avaliar a nova solução
         fobjValueNew = fobj(v);
         fitValueNew = fitness(fobjValueNew);
+        fes = fes +1;
         
         % quanto maior o fit melhor a solução
         if (fitValueNew > fitValue(i))
@@ -114,7 +115,9 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
             % Avalia nova solução
             fobjValueNew = fobj(v);
             fitValueNew = fitness(fobjValueNew);
+            fes = fes +1;
             
+
             % Quanto maior o fit melhor a solução
             if (fitValueNew > fitValue(i))
                 x(i,:) = v;
@@ -129,7 +132,6 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
     
     %% SCOUT BEE
     % Há no máximo uma scout por fase
-    fes = fes + 2*NUM_FOODS;
     [~, ind] =  max(trial);
     if (trial(ind) > LIMIT)
         trial(ind) = 0;

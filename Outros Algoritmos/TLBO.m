@@ -24,7 +24,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, POP_SIZE, MAX
 
 %%
 DIM = length(LB);     % qtd de variaveis de design
-% Generation of initial population
+% Inicializa a população
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
 
@@ -44,32 +44,30 @@ end
 iter = 1; % contador de iteracoes
 while(fes+2*POP_SIZE <= MAX_FES)
     for i = 1:POP_SIZE
-        %% Teacher Phase
+       %% Teacher Phase
         xMean = mean(x);
         
-        % Determination of teacher
+        % determina o professor
         [~,id] = min(fit);
         xBest = x(id,:);
         
         % Teaching factor
         TF = randi([1 2]);
         
-        % Generation of a new solution
+        % gera nova solucao
         xNew = x(i,:) + rand(1,DIM).*(xBest - TF*xMean);
         
-        % Bounding of the solution
+        % verifica os limites
         xNew = boudaryCorrection(xNew, LB, UB, DIM, 1);        
         
-        % Evaluation of objective function
+        % avalia a nova solucao
         fitNew = fobj(xNew);
-        
-        % Greedy selection
         if (fitNew < fit(i))
             x(i,:) = xNew;
             fit(i) = fitNew;
         end
-%%      Learner Phase
-        % selecionar um parceiro aleatoriamente
+      %% Learner Phase
+        % seleciona um parceiro aleatoriamente
         randNums = randperm(POP_SIZE,2);
         if randNums(1) ~= i
             idRand = randNums(1);
@@ -77,20 +75,18 @@ while(fes+2*POP_SIZE <= MAX_FES)
             idRand = randNums(2);
         end
         
-        % Generation of a new solution
+        % gera nova solução
         if (fit(i) < fit(idRand))
             xNew = x(i,:) + rand(1, DIM).*(x(i,:)- x(idRand,:));
         else
             xNew = x(i,:) + rand(1, DIM).*(x(idRand,:)- x(i,:));
         end
         
-        % Bounding of the solution
+        % verifica os limitantes
         xNew = boudaryCorrection(xNew, LB, UB, DIM, 1);
         
-        % Evaluation of objective function
+        % avalia a nova solução
         fitNew = fobj(xNew);
-        
-        % Greedy selection
         if(fitNew <  fit(i))
             x(i,:) = xNew;
             fit(i) = fitNew;
@@ -105,7 +101,7 @@ while(fes+2*POP_SIZE <= MAX_FES)
         fesCurve(iter) = fes;
     end  
 end
-% Extracting the best solution
+% retorna a melhor solução
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end

@@ -2,11 +2,11 @@ clc; clear; close all;
 % OBS2: CIABC foi perda de tempo. Ver notas no arquivo
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
-selAlgo = {'CIABC','ABC'}; % Vetor com os algoritmos que deseja avaliar
-listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % Lista de todos algoritmos disponíveis
-RUNS = 30; % quantidade de execuções distintas
-pop = 200; % tamanho da população (>5)
-maxFes = 2*pop*1000; % numero maximo de avalicoes da funcao objetivo
+selAlgo = {'TLABC', 'ABC'}; % Vetor com os algoritmos que deseja avaliar
+listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
+RUNS =10; % quantidade de execuções distintas
+pop = 50; % tamanho da população (>5)
+maxFes = 10000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
@@ -66,11 +66,29 @@ for i = 1: length(selAlgo)
     result(i).converg = converg;
     result(i).name = selAlgo{i};   
 end
+
+%% Tratar cuvas de convergência com tamanhos diferentes
+for i = 1: length(result)
+    qtdEle = 0;
+    for j = 1:length([result(i).converg])
+        qtdEle(j) = numel([result(i).converg(j).RMSE]);
+    end
+    maior = max(qtdEle);
+    matrizRMSE = NaN(maior, maior);
+    matrizfes = NaN(maior, maior);
+    for j = 1:length([result(i).converg])
+        matrizRMSE(1:qtdEle(j), j) = [result(i).converg(j).RMSE];
+        matrizfes(1:qtdEle(j), j) = [result(i).converg(j).fes];
+    end
+    result(i).matrizRMSE = matrizRMSE;
+    result(i).matrizfes = matrizfes;
+end
+
 %% plotar curvas de convergência
 figure
 for i = 1: length(result)
-    converg_curve_mean = mean([result(i).converg(:).RMSE], 2);
-    fes = mean([result(i).converg(:).fes], 2);
+    converg_curve_mean = mean([result(i).matrizRMSE], 2, 'omitnan');
+    fes = mean([result(i).matrizfes], 2, 'omitnan');
     semilogy(fes, converg_curve_mean);
     hold on
 end

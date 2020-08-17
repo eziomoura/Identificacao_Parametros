@@ -1,26 +1,30 @@
 function f = getAlgo(algoSelected)
 switch algoSelected
-    % DE
+    case 'BFS'
+        f = @BFS;
+
     case 'JADE'
         f = @JADE;
     case 'EJADE'
         f = @EJADE;
     case 'DE'
         f = @DE;
-        % TLBO
+
     case 'TLBO'
         f = @TLBO;
     case 'ITLBO'
         f = @ITLBO;
-        % BFS
-    case 'BFS'
-        f = @BFS;
+    case 'TLABC'
+        f = @TLABC;
+
     case 'ABC'
         f = @ABC;
     case 'CIABC'
         f = @CIABC;
+
     case 'PSO'
         f = @PSO;
+
     case 'IJAYA'
         f = @IJAYA;
     case 'PGJAYA'
