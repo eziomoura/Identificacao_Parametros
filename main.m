@@ -2,11 +2,12 @@ clc; clear; close all;
 % OBS2: CIABC foi perda de tempo. Ver notas no arquivo
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
-selAlgo = {'TLABC', 'ABC'}; % Vetor com os algoritmos que deseja avaliar
+CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
+selAlgo = {'TLABC', 'TLBO'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
-RUNS =10; % quantidade de execuções distintas
-pop = 50; % tamanho da população (>5)
-maxFes = 10000; % numero maximo de avalicoes da funcao objetivo
+RUNS = 30; % quantidade de execuções distintas
+POP = 50; % tamanho da população (>5)
+MAX_FES = 20000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
@@ -28,7 +29,7 @@ else
 end
 %% Define a função objetivo
 addpath('.\Funções Objetivo')
-fun = makeFobj(Vmed, Imed, Ns, Tc, 1);
+fun = makeFobj(Vmed, Imed, Ns, Tc, CODE_FUN_OBJ);
 fobj = @fun.Fobj;
 
 %% pre alocação
@@ -46,7 +47,7 @@ for i = 1: length(selAlgo)
     for run = 1:RUNS
         fprintf('\nExecução %d \n', run)
         tic
-        [x, RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, pop, maxFes, true);
+        [x, RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, POP, MAX_FES, true);
         
         Iph(run) = x(1);
         I0(run) = x(2);

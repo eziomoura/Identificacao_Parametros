@@ -1,7 +1,7 @@
 % OBS: Não obtive resultados significativante diferentes do ABC. 
 % 1- há contradição entre o fluxograma e o texto, 
 % 2- Autor não mostrou sua curva de convergia em relação a outros
-% alguritmos
+% algoritmos
 % 3- autor utilizou uma quantidade elevada de fes 
 
 function [xBest, fBest, fBestCurve, fesCurve] = CIABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
@@ -40,7 +40,7 @@ LIMIT = POP_SIZE*DIM;  % ref [1]
 NUM_FOODS = POP_SIZE;
 
 % inicialização da população
-x = LB + (UB - LB).*rand(NUM_FOODS, DIM); % População
+x = LB + (UB - LB).*rand(NUM_FOODS, DIM); % População inicial
 fobjValue = fobj(x);           % Valor da função objetivo para cada solução candidata
 fitValue = fitness(fobjValue); % Fitness de cada x. Quanto maior melhor
 trial = zeros(1,NUM_FOODS);    % Quantidade de tentativas de melhoramento de uma solução

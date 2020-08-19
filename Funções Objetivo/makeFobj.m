@@ -24,6 +24,8 @@ classdef makeFobj
             switch typeFobj
                 case 1
                     this.f = @RMSE_CURRENT_ONE_DIODE;
+                case 2 
+                    this.f = @RMSE_POWER_ONE_DIODE;
                 otherwise
                     error('função objetivo não encontrada');
             end

@@ -22,11 +22,13 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLABC(fobj, LB, UB, POP_SIZE, MA
 %
 % Fontes:
 %   [1]CHEN, X.et al. Teaching–learning–based artificial bee colony for solar photovoltaic parameter estimation. Applied Energy, Elsevier, v. 212, n. December 2017, p. 1578–1588, 2018. ISSN 03062619. Disponível em: <https://doi.org/10.1016/j.apenergy.2017.12.115>
+
 %% parâmetros do algoritmo
 DIM = length(LB); % qtd de variaveis de design
 
 % numero de tentativas de melhoramento de uma solução candidata
 LIMIT = 200;
+F = rand; % fator de escala
 
 % inicialização da população
 x = LB + (UB - LB).*rand(POP_SIZE, DIM); % População
@@ -36,9 +38,9 @@ trial = zeros(1,POP_SIZE);    % Quantidade de tentativas de melhoramento de uma 
 fes = POP_SIZE;               % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
 if SHOW_CONVERG
-%    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
-%     fBestCurve = zeros(MAX_ITER +1,1);
-%     fesCurve = zeros(MAX_ITER +1,1);
+    %    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
+    %     fBestCurve = zeros(MAX_ITER +1,1);
+    %     fesCurve = zeros(MAX_ITER +1,1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
@@ -64,17 +66,25 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
             if rand < 0.5
                 xNew(d) = x(i,d) + rand*(xBest(d) - TF*xMean(d));
             else
-                xNew(d) = x(id(1), d) + rand*(x(id(2), d) - x(id(3), d));
+                xNew(d) = x(id(1), d) + F*(x(id(2), d) - x(id(3), d));
             end
         end
+%         
+%         if rand < 0.5
+%             xNew = x(i,:) + rand*(xBest - TF*xMean);
+%         else
+%             xNew = x(id(1), :) + F*(x(id(2),:) - x(id(3),:));
+%         end
         
         
-        %         % checar limitantes
-        %         if v(j) < LB(j)
-        %             v(j) = LB(j);
-        %         elseif v(j) > UB(j)
-        %             v(j) = UB(j);
-        %         end
+        % checar limitantes
+        for k = 1:DIM
+            if xNew(k) < LB(k)
+                xNew(k) = LB(k);
+            elseif xNew(k) > UB(k)
+                xNew(k) = UB(k);
+            end
+        end
         
         % avaliar a nova solução
         fobjValueNew = fobj(xNew);
@@ -97,7 +107,7 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
     for i = 1:POP_SIZE
         if(prob(i) > rand)
             % Seleciona outra fonte de alimentos
-            k = randi(POP_SIZE);   
+            k = randi(POP_SIZE);
             while(k == i)
                 k = randi(POP_SIZE);
             end
@@ -108,13 +118,16 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
             else
                 xNew = x(i,:) + rand*(x(k,:) - x(i,:));
             end
-            %             % Checa limitantes
-            %             if v(j) < LB(j)
-            %                 v(j) = LB(j);
-            %             elseif v(j) > UB(j)
-            %                 v(j) = UB(j);
-            %             end
             
+            % Checa limitantes
+            
+            for k = 1:DIM
+                if xNew(k) < LB(k)
+                    xNew(k) = LB(k);
+                elseif xNew(k) > UB(k)
+                    xNew(k) = UB(k);
+                end
+            end
             % Avalia nova solução
             fobjValueNew = fobj(xNew);
             fitValueNew = fitness(fobjValueNew);
@@ -152,7 +165,7 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
         end
         fes = fes +1;
     end
-
+    
     % Atualiza curva de convergencia
     iter = iter +1;
     if SHOW_CONVERG
