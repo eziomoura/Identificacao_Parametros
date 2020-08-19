@@ -69,13 +69,6 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
                 xNew(d) = x(id(1), d) + F*(x(id(2), d) - x(id(3), d));
             end
         end
-%         
-%         if rand < 0.5
-%             xNew = x(i,:) + rand*(xBest - TF*xMean);
-%         else
-%             xNew = x(id(1), :) + F*(x(id(2),:) - x(id(3),:));
-%         end
-        
         
         % checar limitantes
         for k = 1:DIM
@@ -120,7 +113,6 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
             end
             
             % Checa limitantes
-            
             for k = 1:DIM
                 if xNew(k) < LB(k)
                     xNew(k) = LB(k);
@@ -128,6 +120,7 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
                     xNew(k) = UB(k);
                 end
             end
+            
             % Avalia nova solução
             fobjValueNew = fobj(xNew);
             fitValueNew = fitness(fobjValueNew);
