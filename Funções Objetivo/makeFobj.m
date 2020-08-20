@@ -6,7 +6,7 @@ classdef makeFobj
         T
         k = 1.3806503e-23;    % Boltzmann [J/K] 1.380649 [1.38065040000000e-23]
         q = 1.60217646e-19;   % Electron charge [C]
-        Vt                    % tensão termica
+        Vt                    % tensão térmica
     end
     
     properties (Access = private)
@@ -31,7 +31,7 @@ classdef makeFobj
             end
         end
         
-        function y = Fobj(this, x) 
+        function y = Objective(this, x) 
             [POP_SIZE,~] = size(x);
              y = this.f(x, this.Vmed, this.Imed, this.Vt, POP_SIZE);
         end

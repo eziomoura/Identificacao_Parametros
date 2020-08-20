@@ -1,14 +1,17 @@
 function [xBest, fBest, fBestCurve, fesCurve] = DE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     XXXX miniza a fobj usando a metaheurística XXXXX,
-% conforme descrita em [1] e [2].
+%     DE minimiza a fobj usando a metaheurística "Differential Evolution",
+% conforme descrita em [1]. Como em [1] não é explicitado a forma de 
+% tratamento das restições, aqui será atribuido um valor aleatório ao
+% parâmetro que ultrapasse seu limite superior ou inferior.
+%
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   SHOW_CONVERG - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:
@@ -19,18 +22,16 @@ function [xBest, fBest, fBestCurve, fesCurve] = DE(fobj, LB, UB, POP_SIZE, MAX_F
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
-%   [2]
+%   [1] STORN, R.; PRICE, K. Differential Evolution – A Simple and Efficient Heuristic for global Optimization over Continuous Spaces. Journal of Global Optimization, v. 11, n. 4, p. 341–359, 1 dez. 1997. 
 %% parâmetros do algoritmo
-DIM = length(LB); % qtd de variaveis de design
 F = 0.95;
 CR = 0.8;
-%maxIter = max_fes/(N); % numero maximo de iterações
 %% Inicializa a populacao
+DIM = length(LB); % qtd de variaveis de design
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
 fes = POP_SIZE;
-if seeConverg
+if SHOW_CONVERG
     MAX_ITER = (MAX_FES - POP_SIZE)/POP_SIZE;
     fBestCurve = zeros(MAX_ITER,1);
     fesCurve = zeros(MAX_ITER,1);
@@ -68,7 +69,7 @@ while(fes + POP_SIZE <= MAX_FES)
     fes = fes + POP_SIZE;
     iter = iter +1;
     
-    if seeConverg
+    if SHOW_CONVERG
         fBestCurve(iter) = min(fit);
         fesCurve(iter) = fes;
     end
@@ -78,10 +79,10 @@ xBest = x(id,:);
 end
 
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-%% LB e UB devem ser matrizes com dimensao [nBirds, dim]
-    u = (xNew < LB) | (xNew > UB);
-    randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
-    xNew(u) = randomMatrix(u);
+% atribui valor aleatorio ao paramentro violar seus limites
+u = (xNew < LB) | (xNew > UB);
+randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
+xNew(u) = randomMatrix(u);
 end
 
 function [x, fit] =  updatePosition(x, fit, xNew, fitNew)

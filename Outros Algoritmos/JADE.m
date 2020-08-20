@@ -8,7 +8,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   SHOW_CONVERG - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:

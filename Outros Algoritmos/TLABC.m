@@ -45,11 +45,10 @@ if SHOW_CONVERG
     fesCurve(1) = fes;
 end
 iter = 1; % contador de iterações
-while(fes + 2*POP_SIZE + 1 <= MAX_FES)
-    %% Fase Teaching-based employed bee
+while(fes + 2*POP_SIZE + 2 <= MAX_FES)
+    %% Fase Teaching-based employed bee    
     for i = 1:POP_SIZE
         xMean = mean(x);
-        
         % determina o professor
         [~,idBest] = min(fobjValue);
         xBest = x(idBest,:);
@@ -156,7 +155,7 @@ while(fes + 2*POP_SIZE + 1 <= MAX_FES)
             fobjValue(ind) = fRand;
             fitValue(ind) = fitness(fRand);
         end
-        fes = fes +1;
+        fes = fes +2;
     end
     
     % Atualiza curva de convergencia

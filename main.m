@@ -7,7 +7,7 @@ selAlgo = {'TLABC', 'TLBO'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 RUNS = 30; % quantidade de execuções distintas
 POP = 50; % tamanho da população (>5)
-MAX_FES = 20000; % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 50000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
@@ -22,7 +22,7 @@ Ns =   [IVCurve.Ns];  % Numero de celulas em serie
 %          var = [Iph, I0, n, Rs, Rp];
 if Ns > 1
     limite_inf = [0, 0, 1, 0, 0];            % limite inferior do módulo
-    limite_sup = [2, 50e-6, 50/36, 2, 2000]; % limite superior
+    limite_sup = [2, 50e-6, 50/Ns, 2, 2000]; % limite superior
 else
     limite_inf = [0, 0, 1, 0, 0];            % limite inferior da célula
     limite_sup = [1, 1e-6, 2, 0.5, 100];     % limite superior
@@ -30,7 +30,7 @@ end
 %% Define a função objetivo
 addpath('.\Funções Objetivo')
 fun = makeFobj(Vmed, Imed, Ns, Tc, CODE_FUN_OBJ);
-fobj = @fun.Fobj;
+fobj = @fun.Objective;
 
 %% pre alocação
 %converg_curve = zeros(RUNS, maxIter);
