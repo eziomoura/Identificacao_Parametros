@@ -23,14 +23,12 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLABC(fobj, LB, UB, POP_SIZE, MA
 % Fontes:
 %   [1]CHEN, X.et al. Teaching–learning–based artificial bee colony for solar photovoltaic parameter estimation. Applied Energy, Elsevier, v. 212, n. December 2017, p. 1578–1588, 2018. ISSN 03062619. Disponível em: <https://doi.org/10.1016/j.apenergy.2017.12.115>
 
-%% parâmetros do algoritmo
-DIM = length(LB); % qtd de variaveis de design
-
-% numero de tentativas de melhoramento de uma solução candidata
-LIMIT = 200;
+%% Parâmetros do algoritmo
+LIMIT = 200; % numero de tentativas de melhoramento de uma solução candidata
 F = rand; % fator de escala
 
-% inicialização da população
+% Inicialização da população
+DIM = length(LB); % qtd de variaveis de design
 x = LB + (UB - LB).*rand(POP_SIZE, DIM); % População
 fobjValue = fobj(x);           % Valor da função objetivo para cada solução candidata
 fitValue = fitness(fobjValue); % Fitness de cada x. Quanto maior melhor

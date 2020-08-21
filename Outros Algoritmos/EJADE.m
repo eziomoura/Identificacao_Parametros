@@ -1,15 +1,16 @@
-function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     XXXX miniza a fobj usando a metaheurística XXXXX,
-% conforme descrita em [1] e [2].
+%     EJADE minimiza a fobj usando a metaheurística "Enhanced Adaptive 
+% Differential Evolution" conforme descrita em [1].
+% 
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   showConverg - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
-%       referentes a curva de convergêngia (converg_RMSE e converg_fes)
+%   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
+%       referentes a curva de convergência (converg_RMSE e converg_fes)
 %        
 % Saídas:
 %   xBest - Vetor com os parâmetros que minimizam fobj
@@ -19,19 +20,17 @@ function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MA
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
-%   [2]
+%   [1] LI, S.; GU, Q.; GONG, W.; NING, B. An enhanced adaptive differential evolution algorithm for parameter extraction of photovoltaic models. Energy Conversion and Management, v. 205, n. December 2019, p. 112443, 2020. 
 %% parâmetros do algoritmo
-DIM = length(LB); % qtd de variaveis de design
 c = 0.1; %*
 p = 5;   %*
-
 uF = 0.5;
 uCR = 0.5;
 POP_MIN = 4;
 POP_MAX = POP_SIZE; %50
 pop = POP_MAX;
 %% Inicializa a populacao
+DIM = length(LB); % qtd de variaveis de design
 xArchived = [];
 x = LB + (UB - LB).*rand(pop, DIM);
 fit = fobj(x);
@@ -41,7 +40,7 @@ fes = pop;
 %     cuidado!!!
 % end
 iter = 1;
-if seeConverg
+if SHOW_CONVERG
         fBestCurve(iter,1) = min(fit);
         fesCurve(iter,1) = fes;
 end
@@ -118,8 +117,8 @@ while(fes + pop <= MAX_FES)
         end
     end
     % Randomly remove solutions from  xArchived
-    if length(xArchived) > POP_SIZE
-        del = randperm(length(xArchived), length(xArchived) - POP_SIZE);
+    if size(xArchived,1) > POP_SIZE
+        del = randperm(size(xArchived,1), size(xArchived,1) - POP_SIZE);
         xArchived(del,:) = [];
     end
     uCR = (1 - c)*uCR + c*mean(S_CR);
@@ -134,7 +133,7 @@ while(fes + pop <= MAX_FES)
     end
     pop = newpop;
     
-    if seeConverg
+    if SHOW_CONVERG
         fBestCurve(iter,1) = min(fit);
         fesCurve(iter,1) = fes;
     end
@@ -145,44 +144,26 @@ xBest = x(id,:);
 end
 
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-%% LB e UB devem ser matrizes com dimensao [nBirds, dim]
 u = (xNew < LB) | (xNew > UB);
 randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
 xNew(u) = randomMatrix(u);
 end
 
-% function [x, fit, xArchived] =  updatePosition(x, fit, xNew, fitNew, xArchived, S_CR, CR, S_F, F)
-% % isBetter = fitNew < fit;
-% % if any(isBetter)
-% %     fit(isBetter) = fitNew(isBetter);
-% %     x(isBetter, :) = xNew(isBetter, :);
-% %     idArq = ~isBetter;
-% %     xArchived = [xArchived; x(idArq,:)];
-% %
-% % end
-% if fitNew < fit
-%     xArchived = [xArchived; x];
-%     x = xNew;
-%     fit = fitNew;
-%     S_CR = [S_CR, CR];
-%     S_F = [S_F, F];
-% end
-% end
-
 function y = randCauchy(u, c, N)
-% generate random numbers within Cauchy distribuition
+% Generate random numbers within Cauchy distribuition
 % u - location parameter
 % c - scale parameter
 y = u + c*tan(pi*(rand(1,N) - 1/2));
 end
 
 function y = randNormal(mu, sd, N)
-% generate random numbers within Normal distribuition
+% Generate random numbers within Normal distribuition
 % u - mean
 % c - standard deviation
 y = randn(1,N)*sd + mu;
 end
 
 function y = lehmarMean(Sf)
+% Media de Lehmar
 y = sum(Sf.^2)/sum(Sf);
 end

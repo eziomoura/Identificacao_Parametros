@@ -9,7 +9,7 @@ function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MA
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   showConverg - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:
@@ -27,7 +27,7 @@ nBirds = POP_SIZE; % tamanho da pop
 DIM = length(LB); % qtd de variaveis de design
 x = LB + (UB - LB).*rand(nBirds, DIM);
 fit = fobj(x);    % fitness de cada individuo
-fes = POP_SIZE; % quantidade de avaliação da função objetivo
+fes = POP_SIZE;   % quantidade de avaliação da função objetivo
 if SHOW_CONVERG
     MAX_ITER = floor((MAX_FES - POP_SIZE)/(3*POP_SIZE)); % numero maximo de iterações
     fBest_curve = zeros(MAX_ITER + 1, 1);
@@ -68,6 +68,8 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     
     r2 = 2*rand - 1; % numero aleatorio entre -1 e 1;
     lambda = xBest - xSecondBest; %lambda = 0.1*(UB(1,:) - LB(1,:));
+    
+    % atuliza xBest
     xBestNew = xBest + r2.*lambda; % equation (3)
     xBestNew = boudaryCorrection(xBestNew, LB(1,:), UB(1,:), DIM, 1);
     fitBestNew = fobj(xBestNew);
@@ -85,7 +87,6 @@ while(fes + 3*POP_SIZE <= MAX_FES)
             p(p==i) = [];
             %             temp = [1:(i-1), (i+1):(nBirds-1)];
             %             p = temp(randi(nBirds-2,[1, 4]));
-%             d = randi(DIM);
             xIncNew(i,:) = xInc(i,:) + rand*(xInc(p(1),:) - xInc(p(2),:)) + rand*(xInc(p(3),:) - xInc(p(4),:));
         end
     end

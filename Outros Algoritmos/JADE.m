@@ -1,7 +1,8 @@
 function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     XXXX miniza a fobj usando a metaheurística XXXXX,
-% conforme descrita em [1] e [2].
+%     JADE minimiza a fobj usando a metaheurística "Adaptive Differential 
+% Evolution with Optional External Archive" conforme descrito em [1].
+%
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
@@ -19,16 +20,19 @@ function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
-%   [2]
+%   [1] ZHANG, J.; SANDERSON, A. C. JADE: Adaptive differential evolution with optional external archive. IEEE Transactions on Evolutionary Computation, v. 13, n. 5, p. 945–958, 2009. 
 %% parâmetros do algoritmo
-DIM = length(LB); % qtd de variaveis de design
-c = 0.1;
-p = 5;
+% determines the greediness of the mutation strategy
+p = 5/100; % os p% melhores
 
+% controls the rate of parameter adaptation
+c = 0.1;  
+
+% valores iniciais para taxa de mutação e crossover
 uF = 0.5;
 uCR = 0.5;
 %% Inicializa a populacao
+DIM = length(LB); % qtd de variaveis de design
 xArchived = [];
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
@@ -45,14 +49,14 @@ while(fes + POP_SIZE <= MAX_FES)
         %% 1 - Mutation (DE/current-to-pbest)
         % Ajuste dos parametros
         CR = randNormal(uCR, 0.1, 1);
-        if CR>1
+        if CR > 1
             CR = 1;
-        elseif CR<0
+        elseif CR < 0
             CR = 0;
         end
         
         F = randCauchy(uF, 0.1, 1);
-        while F<=0
+        while F <= 0
             F = randCauchy(uF, 0.1, 1);
         end
         if F > 1
@@ -60,7 +64,7 @@ while(fes + POP_SIZE <= MAX_FES)
         end
 
         % Selecionar um x dentre os p% melhores
-        pbest  = id(randperm(round(p*POP_SIZE/100),1));
+        pbest  = id(randperm(round(p*POP_SIZE),1));
         
         % Selecionar x1 de P
         r1 = randperm(POP_SIZE, 2);
@@ -81,20 +85,24 @@ while(fes + POP_SIZE <= MAX_FES)
         
         % mutation vector v
         v(i,:) = x(i,:) + F.*(x(pbest,:) - x(i,:)) + F.*(x1 - x2);
-        
+        %% checa limites
+        for d = 1:DIM
+            if v(i,d) < LB(d)
+                v(i,d) = (LB(d) + x(i,d))/2;
+            elseif v(i,d) > UB(d)
+                v(i,d) = (UB(d) + x(i,d))/2;
+            end
+        end
         %% 2 - Crossover
         jrand = randi(DIM);
         for j = 1:DIM
             if rand <= CR | j == jrand
-                u(i,j) = v(i,j);
+                xNew(j) = v(i,j);
             else
-                u(i,j) = x(i,j);
+                xNew(j) = x(i,j);
             end
         end
-        %% 3 - Selection
-        % verificar limites
-        xNew = boudaryCorrection(u(i,:), LB, UB, DIM, 1);
-        
+        %% 3 - Selection        
         % avalia a nova posicao
         fitNew = fobj(xNew); % avalia nova posicao
         if fitNew < fit(i)
@@ -107,8 +115,8 @@ while(fes + POP_SIZE <= MAX_FES)
     end
     fes = fes + POP_SIZE;
     % Randomly remove solutions from  xArchived
-    if length(xArchived) > POP_SIZE
-        del = randperm(length(xArchived), length(xArchived) - POP_SIZE);
+    if size(xArchived,1) > POP_SIZE
+        del = randperm(size(xArchived,1), size(xArchived,1) - POP_SIZE);
         xArchived(del,:) = [];
     end
     uCR = (1 - c)*uCR + c*mean(S_CR);
@@ -123,45 +131,21 @@ end
 xBest = x(id,:);
 end
 
-function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-%% LB e UB devem ser matrizes com dimensao [nBirds, dim]
-u = (xNew < LB) | (xNew > UB);
-randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
-xNew(u) = randomMatrix(u);
-end
-
-% function [x, fit, xArchived] =  updatePosition(x, fit, xNew, fitNew, xArchived, S_CR, CR, S_F, F)
-% % isBetter = fitNew < fit;
-% % if any(isBetter)
-% %     fit(isBetter) = fitNew(isBetter);
-% %     x(isBetter, :) = xNew(isBetter, :);
-% %     idArq = ~isBetter;
-% %     xArchived = [xArchived; x(idArq,:)];
-% %
-% % end
-% if fitNew < fit
-%     xArchived = [xArchived; x];
-%     x = xNew;
-%     fit = fitNew;
-%     S_CR = [S_CR, CR];
-%     S_F = [S_F, F];
-% end
-% end
-
 function y = randCauchy(u, c, N)
-% generate random numbers within Cauchy distribuition
+% Generate random numbers within Cauchy distribuition
 % u - location parameter
 % c - scale parameter
 y = u + c*tan(pi*(rand(1,N) - 1/2));
 end
 
 function y = randNormal(mu, sd, N)
-% generate random numbers within Normal distribuition
+% Generate random numbers within Normal distribuition
 % u - mean
 % c - standard deviation
 y = randn(1,N)*sd + mu;
 end
 
 function y = lehmarMean(Sf)
+% Calcula a media de Lehmar
 y = sum(Sf.^2)/sum(Sf);
 end
