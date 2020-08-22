@@ -86,12 +86,14 @@ while(fes + 3*POP_SIZE <= MAX_FES)
             IF = round(1 + rand);
             xIncNew(i,:) = xInc(i,:) + rand*(xBest - IF*xInc(i,:));
         else
-            % generate random different integers;
-            p = randperm(nBirds-1,5);
-            p(p==i) = [];
-            %             temp = [1:(i-1), (i+1):(nBirds-1)];
-            %             p = temp(randi(nBirds-2,[1, 4]));
-            xIncNew(i,:) = xInc(i,:) + rand*(xInc(p(1),:) - xInc(p(2),:)) + rand*(xInc(p(3),:) - xInc(p(4),:));
+            for d=1:DIM
+                % generate random different integers;
+                p = randperm(nBirds-1,5);
+                p(p==i) = [];
+                %             temp = [1:(i-1), (i+1):(nBirds-1)];
+                %             p = temp(randi(nBirds-2,[1, 4]));
+                xIncNew(i,d) = xInc(i,d) + rand*(xInc(p(1),d) - xInc(p(2),d)) + rand*(xInc(p(3),d) - xInc(p(4),d));
+            end
         end
     end
     % Check boundary
