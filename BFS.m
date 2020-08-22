@@ -69,16 +69,20 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     r2 = 2*rand - 1; % numero aleatorio entre -1 e 1;
     lambda = xBest - xSecondBest; %lambda = 0.1*(UB(1,:) - LB(1,:));
     
-    % atuliza xBest
-    xBestNew = xBest + r2.*lambda; % equation (3)
-    xBestNew = boudaryCorrection(xBestNew, LB(1,:), UB(1,:), DIM, 1);
+    % atualiza xBest
+    xBestNew = xBest + r2*lambda; % equation (3)
+    
+    % checa limites
+    xBestNew = boudaryCorrection(xBestNew, LB, UB, DIM, 1);
+    
+    % avalia a nova posicao
     fitBestNew = fobj(xBestNew);
     [xBest, fitBest] =  updatePosition(xBest, fitBest, xBestNew, fitBestNew);
     
     % *incursion birds* xinc
     prob = 1 - iter/MAX_ITER; % Probabilidade de assustar os intrusos
     for i = 1:nBirds-1
-        if prob <= rand
+        if rand >= prob
             IF = round(1 + rand);
             xIncNew(i,:) = xInc(i,:) + rand*(xBest - IF*xInc(i,:));
         else
