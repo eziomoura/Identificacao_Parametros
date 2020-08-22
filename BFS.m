@@ -86,14 +86,16 @@ while(fes + 3*POP_SIZE <= MAX_FES)
             IF = round(1 + rand);
             xIncNew(i,:) = xInc(i,:) + rand*(xBest - IF*xInc(i,:));
         else
-            for d=1:DIM
                 % generate random different integers;
                 p = randperm(nBirds-1,5);
                 p(p==i) = [];
                 %             temp = [1:(i-1), (i+1):(nBirds-1)];
                 %             p = temp(randi(nBirds-2,[1, 4]));
-                xIncNew(i,d) = xInc(i,d) + rand*(xInc(p(1),d) - xInc(p(2),d)) + rand*(xInc(p(3),d) - xInc(p(4),d));
-            end
+                xIncNew(i,:) = xInc(i,:) + rand*(xInc(p(1),:) - xInc(p(2),:)) + rand*(xInc(p(3),:) - xInc(p(4),:));
+        end
+        if fobj(xIncNew(i,:)) < fitBest
+            xBest = xIncNew(i,:);
+            fitBest = fobj(xIncNew(i,:));
         end
     end
     % Check boundary
@@ -112,9 +114,9 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     %% Cognitive Behavior
     isPosEqual = all(x == xOld, 2);
     nEqual = sum(isPosEqual);
-    zeta = log(iter)/iter * abs(xBest - rand(nEqual,DIM).*x(isPosEqual,:));
-    xNew(isPosEqual,:) = randn(nEqual, DIM).*zeta + xBest;
-    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(nBirds-nEqual, DIM).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
+    zeta = log(iter)/iter * abs(xBest - rand(nEqual,1).*x(isPosEqual,:));
+    xNew(isPosEqual,:) = randn(nEqual, 1).*zeta + xBest;
+    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(nBirds-nEqual, 1).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
     
     % Check boundary
     xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds);
