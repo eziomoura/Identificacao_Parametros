@@ -3,10 +3,10 @@ clc; clear; close all;
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
 CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
-selAlgo = {'BFS', 'EJADE'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'EJADE'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 RUNS = 30; % quantidade de execuções distintas
-POP = 70; % tamanho da população (>5)
+POP = 120; % tamanho da população (>5)
 MAX_FES = 10000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 

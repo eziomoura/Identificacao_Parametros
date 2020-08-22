@@ -127,10 +127,10 @@ while(fes + pop <= MAX_FES)
     % redução da populacao
     newpop = floor((POP_MIN - POP_MAX)/MAX_FES*fes + POP_MAX);
     [~, id] = sort(fit,'descend');
-    for i = 1:pop-newpop % pop reduction
-        x(id(i),:) = [];
-        fit(id(i)) = [];
-    end
+    
+    % pop reduction
+    x(id(1:pop-newpop),:) = [];
+    fit(id(1:pop-newpop)) = [];
     pop = newpop;
     
     if SHOW_CONVERG

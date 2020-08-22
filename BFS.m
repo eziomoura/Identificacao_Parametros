@@ -110,9 +110,9 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     %% Cognitive Behavior
     isPosEqual = all(x == xOld, 2);
     nEqual = sum(isPosEqual);
-    zeta = log(iter)/iter * abs(xBest - rand(nEqual,DIM).*x(isPosEqual,:));
-    xNew(isPosEqual,:) = randn(nEqual, DIM).*zeta + xBest;
-    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(nBirds-nEqual, DIM).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
+    zeta = (log(iter)/iter) * abs(xBest - rand(nEqual,1).*x(isPosEqual,:));
+    xNew(isPosEqual,:) = randn(nEqual, 1).*zeta + xBest;
+    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(nBirds-nEqual, 1).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
     
     % Check boundary
     xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds);
