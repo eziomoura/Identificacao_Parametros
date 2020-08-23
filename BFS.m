@@ -106,7 +106,7 @@ while(fes + 3*POP_SIZE <= MAX_FES)
 %     x(1,:) = xBest; fit(1) = fitBest;
     
     %% Cognitive Behavior
-    tol = 5*eps(x);
+    tol = 10*eps(x);
     isPosEqual = all(abs(x - xOld) < tol, 2);
     nEqual = sum(isPosEqual);
     zeta = (log(iter)/iter) * abs(xBest - rand(nEqual,1).*x(isPosEqual,:));

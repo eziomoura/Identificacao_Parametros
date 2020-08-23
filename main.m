@@ -7,7 +7,7 @@ selAlgo = {'BFS','EJADE'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 RUNS = 10; % quantidade de execuções distintas
 POP = 50; % tamanho da população (>5)
-MAX_FES = 10000; % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 15000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
