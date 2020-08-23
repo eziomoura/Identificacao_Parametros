@@ -2,6 +2,8 @@ function f = getAlgo(algoSelected)
 switch algoSelected
     case 'BFS'
         f = @BFS;
+        case 'BFStest'
+        f = @BFStest;
 case 'JADEB'
         f = @JADEB;
     case 'JADE'
