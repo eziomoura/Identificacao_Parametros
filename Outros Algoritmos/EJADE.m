@@ -23,7 +23,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MA
 %   [1] LI, S.; GU, Q.; GONG, W.; NING, B. An enhanced adaptive differential evolution algorithm for parameter extraction of photovoltaic models. Energy Conversion and Management, v. 205, n. December 2019, p. 112443, 2020. 
 %% parâmetros do algoritmo
 c = 0.1; %*
-p = 5;   %*
+p = 5/100;   %*
 uF = 0.5;
 uCR = 0.5;
 POP_MIN = 4;
@@ -72,7 +72,7 @@ while(fes + pop <= MAX_FES)
     for i = 1:pop
         %% 1 - Mutation (DE/current-to-pbest)
         % Selecionar um x dentre os p% melhores
-        pbest  = id(randperm(ceil(p*pop/100),1));
+        pbest  = id(randperm(ceil(p*pop),1));
         
         % Selecionar x1 de P
         r1 = randperm(pop, 2);

@@ -69,7 +69,7 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     r2 = 2*rand - 1; % numero aleatorio entre -1 e 1;
     lambda = xBest - xSecondBest; %lambda = 0.1*(UB(1,:) - LB(1,:));
     
-    % atualiza xBest
+    % gera novo xBest
     xBestNew = xBest + r2*lambda; % equation (3)
     
     % checa limites
@@ -89,8 +89,6 @@ while(fes + 3*POP_SIZE <= MAX_FES)
             % generate random different integers;
             p = randperm(nBirds-1,5);
             p(p==i) = [];
-            %             temp = [1:(i-1), (i+1):(nBirds-1)];
-            %             p = temp(randi(nBirds-2,[1, 4]));
             xIncNew(i,:) = xInc(i,:) + rand*(xInc(p(1),:) - xInc(p(2),:)) + rand*(xInc(p(3),:) - xInc(p(4),:));
         end
     end
@@ -102,13 +100,14 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     [xInc, fitInc] = updatePosition(xInc, fitInc, xIncNew, fitIncNew);
     
     % Merge Population
-%     x(idf(2:end),:) = xInc; fit(idf(2:end)) = fitInc;
-%     x(idf(1),:) = xBest; fit(idf(1)) = fitBest;
-    x(2:end,:) = xInc; fit(2:end) = fitInc;
-    x(1,:) = xBest; fit(1) = fitBest;
+    x(idf(2:end),:) = xInc; fit(idf(2:end)) = fitInc;
+    x(idf(1),:) = xBest; fit(idf(1)) = fitBest;
+%     x(2:end,:) = xInc; fit(2:end) = fitInc;
+%     x(1,:) = xBest; fit(1) = fitBest;
     
     %% Cognitive Behavior
-    isPosEqual = all(x == xOld, 2);
+    tol = 5*eps(x);
+    isPosEqual = all(abs(x - xOld) < tol, 2);
     nEqual = sum(isPosEqual);
     zeta = (log(iter)/iter) * abs(xBest - rand(nEqual,1).*x(isPosEqual,:));
     xNew(isPosEqual,:) = randn(nEqual, 1).*zeta + xBest;
