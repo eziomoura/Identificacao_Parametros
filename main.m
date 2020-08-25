@@ -5,8 +5,8 @@ clc; clear; close all;
 CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
 selAlgo = {'BFS','BFStest'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
-RUNS = 50; % quantidade de execuções distintas
-POP = 6; % tamanho da população (>5)
+RUNS = 30; % quantidade de execuções distintas
+POP = 80; % tamanho da população (>5)
 MAX_FES = 20000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 

@@ -22,14 +22,15 @@ function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MA
 % Fontes:
 %   [1] LI, S.; GU, Q.; GONG, W.; NING, B. An enhanced adaptive differential evolution algorithm for parameter extraction of photovoltaic models. Energy Conversion and Management, v. 205, n. December 2019, p. 112443, 2020. 
 %% parâmetros do algoritmo
-c = 0.1; %*
-p = 5/100;   %*
+c = 0.1;     %* ref: JADE
+p = 5/100;   %* ref: JADE
+POP_MIN = 4; % ref [1]
+POP_MAX = POP_SIZE; % ref [1]
+
 uF = 0.5;
 uCR = 0.5;
-POP_MIN = 4;
-POP_MAX = POP_SIZE; %50
-pop = POP_MAX;
 %% Inicializa a populacao
+pop = POP_MAX;
 DIM = length(LB); % qtd de variaveis de design
 xArchived = [];
 x = LB + (UB - LB).*rand(pop, DIM);
@@ -90,7 +91,7 @@ while(fes + pop <= MAX_FES)
             x2 = xArchived(id2-pop,:);
         end
         % mutation vector v
-        v(i,:) = x(i,:) + F(i).*(x(pbest,:) - x(i,:)) + F(i).*(x1 - x2);
+        v(i,:) = x(i,:) + F(i)*(x(pbest,:) - x(i,:)) + F(i)*(x1 - x2);
         
         
         %% 2 - Crossover

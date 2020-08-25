@@ -100,10 +100,10 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     [xInc, fitInc] = updatePosition(xInc, fitInc, xIncNew, fitIncNew);
     
     % Merge Population
-    x(idf(2:end),:) = xInc; fit(idf(2:end)) = fitInc;
-    x(idf(1),:) = xBest; fit(idf(1)) = fitBest;
-%     x(2:end,:) = xInc; fit(2:end) = fitInc;
-%     x(1,:) = xBest; fit(1) = fitBest;
+%     x(idf(2:end),:) = xInc; fit(idf(2:end)) = fitInc;
+%     x(idf(1),:) = xBest; fit(idf(1)) = fitBest;
+    x(2:end,:) = xInc; fit(2:end) = fitInc;
+    x(1,:) = xBest; fit(1) = fitBest;
 %     
     %% Cognitive Behavior
     tol = 5*eps(x);

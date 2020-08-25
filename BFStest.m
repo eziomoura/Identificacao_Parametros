@@ -1,4 +1,4 @@
-function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBest_curve, fes_curve] = BFStest(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     BFS minimiza a fobj usando a metaheurística "Birds Foraging Search"
 % conforme descrito em [1].
@@ -39,16 +39,19 @@ else
 end
 xIncNew = zeros(nBirds-1, DIM);
 iter = 1;
+POP_MIN = 6;
+POP_MAX = POP_SIZE;
+pop = POP_SIZE;
 while(fes + 3*POP_SIZE <= MAX_FES)
     xOld = x;
     %% 1 - Flying search behavior phase
     [~, idBest] = min(fit);
     xBest = x(idBest,:);
-    r1 = 2*rand(nBirds,1) - 1; % numeros aletorios entre -1 e 1
+    r1 = 2*rand(pop,1) - 1; % numeros aletorios entre -1 e 1
     xNew = abs(x - xBest).*exp(r1).*cos(2*pi*r1) + xBest; %equation (2)
     
     % verificar limites
-    xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds);
+    xNew = boudaryCorrection(xNew, LB, UB, DIM, pop);
     
     % avalia a nova posicao
     fitNew = fobj(xNew); % avalia nova posicao
@@ -81,29 +84,30 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     
     % *incursion birds* xinc
     prob = 1 - iter/MAX_ITER; % Probabilidade de assustar os intrusos
-    for i = 1:nBirds-1
+    xIncNew = xInc;
+    for i = 1:pop-1
         if rand >= prob
             IF = round(1 + rand);
             xIncNew(i,:) = xInc(i,:) + rand*(xBest - IF*xInc(i,:));
         else
             % generate random different integers;
-            p = randperm(nBirds-1,5);
+            p = randperm(pop-1,5);
             p(p==i) = [];
             xIncNew(i,:) = xInc(i,:) + rand*(xInc(p(1),:) - xInc(p(2),:)) + rand*(xInc(p(3),:) - xInc(p(4),:));
         end
     end
     % Check boundary
-    xIncNew = boudaryCorrection(xIncNew, LB, UB, DIM, nBirds-1);
+    xIncNew = boudaryCorrection(xIncNew, LB, UB, DIM, pop-1);
     
     % avalia as novas posicões
     fitIncNew = fobj(xIncNew);
     [xInc, fitInc] = updatePosition(xInc, fitInc, xIncNew, fitIncNew);
     
     % Merge Population
-    x(idf(2:end),:) = xInc; fit(idf(2:end)) = fitInc;
-    x(idf(1),:) = xBest; fit(idf(1)) = fitBest;
-%     x(2:end,:) = xInc; fit(2:end) = fitInc;
-%     x(1,:) = xBest; fit(1) = fitBest;
+%     x(idf(2:end),:) = xInc; fit(idf(2:end)) = fitInc;
+%     x(idf(1),:) = xBest; fit(idf(1)) = fitBest;
+    x(2:end,:) = xInc; fit(2:end) = fitInc;
+    x(1,:) = xBest; fit(1) = fitBest;
 %     
     %% Cognitive Behavior
     tol = 5*eps(x);
@@ -111,17 +115,26 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     nEqual = sum(isPosEqual);
     zeta = (log(iter)/iter) * abs(xBest - rand(nEqual,1).*x(isPosEqual,:));
     xNew(isPosEqual,:) = randn(nEqual, 1).*zeta + xBest;
-    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(nBirds-nEqual, 1).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
+    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(pop-nEqual, 1).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
     
     % Check boundary
-    xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds);
+    xNew = boudaryCorrection(xNew, LB, UB, DIM, pop);
     
     % avalia as novas posicões
     fitNew = fobj(xNew);
     [x, fit] = updatePosition(x, fit, xNew, fitNew);
     
-    fes = fes + 3*POP_SIZE;
+    fes = fes + 3*pop;
     iter = iter + 1;
+    
+    % redução da populacao
+    newpop = floor((POP_MIN - POP_MAX)/MAX_FES*fes + POP_MAX);
+    [~, id] = sort(fit,'descend');
+    
+    % pop reduction
+    x(id(1:pop-newpop),:) = [];
+    fit(id(1:pop-newpop)) = [];
+    pop = newpop;
     
     if SHOW_CONVERG
         fBest_curve(iter,1) = min(fit);
