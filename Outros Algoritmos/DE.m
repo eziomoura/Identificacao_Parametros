@@ -2,7 +2,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = DE(fobj, LB, UB, POP_SIZE, MAX_F
 % Descrição
 %     DE minimiza a fobj usando a metaheurística "Differential Evolution",
 % conforme descrita em [1]. Como em [1] não é explicitado a forma de 
-% tratamento das restições, aqui será atribuido um valor aleatório ao
+% tratamento das restrições, aqui será atribuido um valor aleatório ao
 % parâmetro que ultrapasse seu limite superior ou inferior.
 %
 % Entradas:
