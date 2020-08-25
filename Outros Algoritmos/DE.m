@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = DE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = DE(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     DE minimiza a fobj usando a metaheurística "Differential Evolution",
 % conforme descrita em [1]. Como em [1] não é explicitado a forma de 
@@ -24,8 +24,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = DE(fobj, LB, UB, POP_SIZE, MAX_F
 % Fontes:
 %   [1] STORN, R.; PRICE, K. Differential Evolution – A Simple and Efficient Heuristic for global Optimization over Continuous Spaces. Journal of Global Optimization, v. 11, n. 4, p. 341–359, 1 dez. 1997. 
 %% parâmetros do algoritmo
-F = 0.95; % mutation factor
-CR = 0.8; % crossover probability
+F = PARAM.F; % mutation factor
+CR = PARAM.CR; % crossover probability
 %% Inicializa a populacao
 DIM = length(LB); % qtd de variaveis de design
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);

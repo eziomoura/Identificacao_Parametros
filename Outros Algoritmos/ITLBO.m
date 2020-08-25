@@ -1,17 +1,17 @@
-%%
-% o autor não indica em qual etapa faz a restrição das variáveis
-%%
-function [xBest, fBest, fBestCurve, fesCurve] = ITLBO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = ITLBO(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     XXXX miniza a fobj usando a metaheurística XXXXX,
-% conforme descrita em [1] e [2].
+%     ITLBO minimiza a fobj usando a metaheurística "Improved Teaching-learning-based",
+% conforme descrita em [1]. Como em [1] não é explicitado a forma de 
+% tratamento das restrições, aqui será atribuido um valor aleatório ao
+% parâmetro que ultrapasse seu limite superior ou inferior.
+%
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
 %   POP_SIZE - Inteiro com o tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
-%   showConverg - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
+%   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
 %        
 % Saídas:
@@ -22,11 +22,13 @@ function [xBest, fBest, fBestCurve, fesCurve] = ITLBO(fobj, LB, UB, POP_SIZE, MA
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
-%   [2]
-DIM = length(LB);     % qtd de variaveis de design
+%   [1] LI, S.; GONG, W.; YAN, X.; HU, C.; BAI, D.; WANG, L.; GAO, L. Parameter extraction of photovoltaic models using an improved teaching-learning-based optimization. Energy Conversion and Management, v. 186, n. December 2018, p. 293–305, 2019. 
 %%
+% Parametros do algoritmo
+POP_SIZE = PARAM.pop;
+
 % Generation of initial population
+DIM = length(LB);     % qtd de variaveis de design
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
 
@@ -36,7 +38,7 @@ fes = POP_SIZE; % contador de avaliacoes da funcao objetivo
 MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
 
 % pre alocacao da curva de convergência
-if seeConverg
+if SHOW_CONVERG
     fBestCurve = zeros(MAX_ITER + 1, 1);
     fesCurve =  zeros(MAX_ITER + 1, 1);
     fBestCurve(1) = min(fit);
@@ -107,7 +109,7 @@ while(fes+2*POP_SIZE <= MAX_FES)
     fes = fes + 2*POP_SIZE;
     iter = iter + 1;
     
-    if seeConverg
+    if SHOW_CONVERG
         fBestCurve(iter) = min(fit);
         fesCurve(iter) = fes;
     end  
@@ -118,7 +120,6 @@ xBest = x(id,:);
 end
 %%
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-%% LB e UB devem ser matrizes com dimensao [POP_SIZE, dim]
 u = (xNew < LB) | (xNew > UB);
 randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
 xNew(u) = randomMatrix(u);

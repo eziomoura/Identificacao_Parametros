@@ -22,7 +22,7 @@ function [xBest, fBest, fBest_curve, fes_curve] = IJAYA(fobj, LB, UB, PARAM, MAX
 % Fontes:
 %   [1] YU, K.; LIANG, J. J.; QU, B. Y.; CHEN, X.; WANG, H. Parameters identification of photovoltaic models using an improved JAYA optimization algorithm. Energy Conversion and Management, v. 150, n. July, p. 742–753, 2017. 
 %% Populacao inicial
-POP_SIZE = PARAM.pop
+POP_SIZE = PARAM.pop;
 DIM = length(LB);
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);     % Avalicao do fitness de cada individuo

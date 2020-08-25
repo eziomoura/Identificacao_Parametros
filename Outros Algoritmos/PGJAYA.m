@@ -32,7 +32,7 @@ x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);     % Avalicao do fitness de cada individuo
 fes = POP_SIZE; % Quantidade de avaliações da função objetivo
 
-%% Dados da curva de convergência
+%% Dados para a curva de convergência
 if SHOW_CONVERG
     MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
     converg_RMSE = zeros(MAX_ITER +1,1);
