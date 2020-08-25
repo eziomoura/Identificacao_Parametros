@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     XXXX miniza a fobj usando a metaheurística XXXXX,
 % conforme descrita em [1] e [2].
@@ -22,10 +22,11 @@ function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, POP_SIZE, MAX_
 %   [1] 
 %   [2]
 %% parâmetros do algoritmo
-c1 = 2; % personal acceleration coefficient
-c2 = 2; % social acceleration coefficien
+c1 = PARAM.c1; % personal acceleration coefficient
+c2 = PARAM.c2; % social acceleration coefficien
+w = PARAM.w;
 vMax = (UB - LB);
-w = 1;
+POP_SIZE = PARAM.pop;
 %% inicialize positions and velocity
 DIM = length(LB);
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
@@ -49,7 +50,7 @@ iter = 1;
 while(fes+POP_SIZE <= MAX_FES)
     for i = 1:POP_SIZE
         % update velocity
-        v(i,:) = w*v(i,:) + c1*rand(1,dim).*(pBest(i,:) - x(i,:)) + c2*rand(1,dim).*(gBest - x(i,:));
+        v(i,:) = w*v(i,:) + c1*rand(1,DIM).*(pBest(i,:) - x(i,:)) + c2*rand(1,DIM).*(gBest - x(i,:));
         v(i,:) = min(v(i,:),  vMax);
         v(i,:) = max(v(i,:), -vMax);
         

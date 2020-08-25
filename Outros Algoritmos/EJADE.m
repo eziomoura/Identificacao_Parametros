@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     EJADE minimiza a fobj usando a metaheurística "Enhanced Adaptive 
 % Differential Evolution" conforme descrita em [1].
@@ -118,8 +118,8 @@ while(fes + pop <= MAX_FES)
         end
     end
     % Randomly remove solutions from  xArchived
-    if size(xArchived,1) > POP_SIZE
-        del = randperm(size(xArchived,1), size(xArchived,1) - POP_SIZE);
+    if size(xArchived,1) > POP_MAX
+        del = randperm(size(xArchived,1), size(xArchived,1) - POP_MAX);
         xArchived(del,:) = [];
     end
     uCR = (1 - c)*uCR + c*mean(S_CR);

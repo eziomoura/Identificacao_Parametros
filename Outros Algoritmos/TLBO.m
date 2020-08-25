@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, POP_SIZE, MAX_FES, seeConverg)
+function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, PARAM, MAX_FES, seeConverg)
 % Descrição
 %     XXXX miniza a fobj usando a metaheurística XXXXX,
 % conforme descrita em [1] e [2].
@@ -23,6 +23,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, POP_SIZE, MAX
 %   [2]
 
 %%
+POP_SIZE = PARAM.pop;
 DIM = length(LB);     % qtd de variaveis de design
 % Inicializa a população
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
