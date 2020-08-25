@@ -3,7 +3,7 @@ clc; clear; close all;
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
 CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
-selAlgo = {'BFS','EJADE'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'BFS'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 RUNS = 10; % quantidade de execuções distintas
 POP = 50; % tamanho da população (>5)
@@ -40,14 +40,16 @@ Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); RMSE = zeros(RUNS,1);
 if strcmp(selAlgo{1}, 'all')
     selAlgo = listAlgo;
 end
-for i = 1: length(selAlgo)
-    metaheuristic = getAlgo(selAlgo{i}); 
+config;
+for i = 1: length(selAlgo) 
     fprintf('\nTestando %s \n', selAlgo{i});
     
     for run = 1:RUNS
+        [metaheuristic, prmt] = getAlgo(selAlgo{i}, Param);
         fprintf('\nExecução %d \n', run)
         tic
-        [x, RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup, POP, MAX_FES, true);
+        [x, RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup,...
+                                                                                prmt, MAX_FES, true);
         
         Iph(run) = x(1);
         I0(run) = x(2);

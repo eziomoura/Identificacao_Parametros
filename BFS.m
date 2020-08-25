@@ -1,4 +1,4 @@
-function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     BFS minimiza a fobj usando a metaheurística "Birds Foraging Search"
 % conforme descrito em [1].
@@ -7,7 +7,8 @@ function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MA
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
-%   POP_SIZE - Inteiro com o tamanho da população
+%   PARAM - Estrutura com o seguinte campo:
+%      pop - Tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
@@ -22,10 +23,10 @@ function [xBest, fBest, fBest_curve, fes_curve] = BFS(fobj, LB, UB, POP_SIZE, MA
 % Fontes:
 %   [1] ZHANG, Z.; HUANG, C.; DONG, K.; HUANG, H. Birds foraging search: a novel population-based algorithm for global optimization. Memetic Computing, v. 11, n. 3, p. 221–250, 2019. 
 %% parâmetros do algoritmo
-nBirds = POP_SIZE; % tamanho da pop
+POP_SIZE = PARAM.pop;
 %% Inicializa a populacao
 DIM = length(LB); % qtd de variaveis de design
-x = LB + (UB - LB).*rand(nBirds, DIM);
+x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);    % fitness de cada individuo
 fes = POP_SIZE;   % quantidade de avaliação da função objetivo
 if SHOW_CONVERG
@@ -37,18 +38,18 @@ if SHOW_CONVERG
 else 
     fBest_curve = NaN; fes_curve = NaN;
 end
-xIncNew = zeros(nBirds-1, DIM);
+xIncNew = zeros(POP_SIZE-1, DIM);
 iter = 1;
 while(fes + 3*POP_SIZE <= MAX_FES)
     xOld = x;
     %% 1 - Flying search behavior phase
     [~, idBest] = min(fit);
     xBest = x(idBest,:);
-    r1 = 2*rand(nBirds,1) - 1; % numeros aletorios entre -1 e 1
+    r1 = 2*rand(POP_SIZE,1) - 1; % numeros aletorios entre -1 e 1
     xNew = abs(x - xBest).*exp(r1).*cos(2*pi*r1) + xBest; %equation (2)
     
     % verificar limites
-    xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds);
+    xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE);
     
     % avalia a nova posicao
     fitNew = fobj(xNew); % avalia nova posicao
@@ -81,19 +82,19 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     
     % *incursion birds* xinc
     prob = 1 - iter/MAX_ITER; % Probabilidade de assustar os intrusos
-    for i = 1:nBirds-1
+    for i = 1:POP_SIZE-1
         if rand >= prob
             IF = round(1 + rand);
             xIncNew(i,:) = xInc(i,:) + rand*(xBest - IF*xInc(i,:));
         else
             % generate random different integers;
-            p = randperm(nBirds-1,5);
+            p = randperm(POP_SIZE-1,5);
             p(p==i) = [];
             xIncNew(i,:) = xInc(i,:) + rand*(xInc(p(1),:) - xInc(p(2),:)) + rand*(xInc(p(3),:) - xInc(p(4),:));
         end
     end
     % Check boundary
-    xIncNew = boudaryCorrection(xIncNew, LB, UB, DIM, nBirds-1);
+    xIncNew = boudaryCorrection(xIncNew, LB, UB, DIM, POP_SIZE-1);
     
     % avalia as novas posicões
     fitIncNew = fobj(xIncNew);
@@ -111,10 +112,10 @@ while(fes + 3*POP_SIZE <= MAX_FES)
     nEqual = sum(isPosEqual);
     zeta = (log(iter)/iter) * abs(xBest - rand(nEqual,1).*x(isPosEqual,:));
     xNew(isPosEqual,:) = randn(nEqual, 1).*zeta + xBest;
-    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(nBirds-nEqual, 1).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
+    xNew(~isPosEqual,:) = x(~isPosEqual,:) + rand(POP_SIZE-nEqual, 1).*(x(~isPosEqual,:) - xOld(~isPosEqual,:));
     
     % Check boundary
-    xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds);
+    xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE);
     
     % avalia as novas posicões
     fitNew = fobj(xNew);

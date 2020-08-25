@@ -17,7 +17,9 @@ function [xBest, fBest, fBestCurve, fesCurve] = CIABC(fobj, LB, UB, POP_SIZE, MA
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
-%   POP_SIZE - Inteiro com o tamanho da população
+%   PARAM - Estrutura com o seguintes campos:
+%      pop - Tamanho da população
+%      limit - Numero de tentativas de melhoramento de uma fonte de alimentos
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %           referentes a curva de convergêngia (converg_RMSE e converg_fes)
@@ -32,19 +34,18 @@ function [xBest, fBest, fBestCurve, fesCurve] = CIABC(fobj, LB, UB, POP_SIZE, MA
 % Fontes:
 %   [1] OLIVA, D.et al. A chaotic improved artificial bee colony for parameter estimation of photovoltaic cells. Energies, v. 10, n. 7, p. 1–19, 2017. ISSN 19961073
 %% parâmetros do algoritmo
-DIM = length(LB); % qtd de variaveis de design
-
 % numero de tentativas de melhoramento de uma fonte de alimentos
-LIMIT = POP_SIZE*DIM;  % ref [1]
+LIMIT = PARAM.limit;  % ref [1]
 % A quantidade de fontes de alimento é igual ao quantidade de employed bees
-NUM_FOODS = POP_SIZE;
+POP_SIZE = PARAM.pop;
 
 % inicialização da população
-x = LB + (UB - LB).*rand(NUM_FOODS, DIM); % População inicial
+DIM = length(LB); % qtd de variaveis de design
+x = LB + (UB - LB).*rand(POP_SIZE, DIM); % População inicial
 fobjValue = fobj(x);           % Valor da função objetivo para cada solução candidata
 fitValue = fitness(fobjValue); % Fitness de cada x. Quanto maior melhor
-trial = zeros(1,NUM_FOODS);    % Quantidade de tentativas de melhoramento de uma solução
-fes = NUM_FOODS;               % Quantidade de avalições da função objetivo
+trial = zeros(1,POP_SIZE);    % Quantidade de tentativas de melhoramento de uma solução
+fes = POP_SIZE;               % Quantidade de avalições da função objetivo
 
 
 %% pre alocacao da curva de convergência
@@ -59,16 +60,16 @@ end
 CM = tentMap(rand, MAX_ITER);
 %%
 iter = 1; % contador de iterações
-while(fes + 2*NUM_FOODS <= MAX_FES)
+while(fes + 2*POP_SIZE <= MAX_FES)
     %% Fase Employed bees
-    for i = 1:NUM_FOODS
+    for i = 1:POP_SIZE
         % Parametro que será alterado
         j = randi(DIM);
         
         % selecionar uma abelha diferente de i
-        k = randi(NUM_FOODS);   
+        k = randi(POP_SIZE);   
         while(k == i)
-            k = randi(NUM_FOODS);
+            k = randi(POP_SIZE);
         end
         
         % numero aleatorio no intevalo [-1, 1]
@@ -102,12 +103,12 @@ while(fes + 2*NUM_FOODS <= MAX_FES)
 
     %% Fase das onlooker bees
     prob = fitValue/sum(fitValue); % probabilidade de uma fonte de comida ser selecionada
-    for i = 1:NUM_FOODS
+    for i = 1:POP_SIZE
         if(prob(i) > CM(iter))
             j = randi(DIM);         % Parâmetro que será alterado
-            k = randi(NUM_FOODS);   % Seleciona outra fonte de alimentos
+            k = randi(POP_SIZE);   % Seleciona outra fonte de alimentos
             while(k == i)
-                k = randi(NUM_FOODS);
+                k = randi(POP_SIZE);
             end
             
             phi = 2*rand - 1;
@@ -138,7 +139,7 @@ while(fes + 2*NUM_FOODS <= MAX_FES)
             end
         end
     end
-    fes = fes + 2*NUM_FOODS;
+    fes = fes + 2*POP_SIZE;
     %% SCOUT BEE
     % Há no máximo uma scout por fase
     % No CIABC é usada a melhor solução ao invés de uma solução aleatória

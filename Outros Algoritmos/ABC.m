@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %   ABC minimiza a fobj usando a metaheurística "Artificial
 %  Bee Colony", conforme descrito em [1] e [2]. O parâmetro limit é
@@ -9,7 +9,9 @@ function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
-%   POP_SIZE - Inteiro com o tamanho da população
+%   PARAM - Estrutura com o seguintes campos:
+%      pop - Tamanho da população
+%      limit - Numero de tentativas de melhoramento de uma fonte de alimentos
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %           referentes a curva de convergêngia (converg_RMSE e converg_fes)
@@ -28,9 +30,9 @@ function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, POP_SIZE, MAX_
 DIM = length(LB); % qtd de variaveis de design
 
 % numero de tentativas de melhoramento de uma fonte de alimentos
-LIMIT = POP_SIZE*DIM;  % ref [1]
+LIMIT = PARAM.limit;  % ref [1]
 % A quantidade de fontes de alimento é igual ao quantidade de employed bees
-NUM_FOODS = POP_SIZE;
+NUM_FOODS = PARAM.pop;
 
 % inicialização da população
 x = LB + (UB - LB).*rand(NUM_FOODS, DIM); % População

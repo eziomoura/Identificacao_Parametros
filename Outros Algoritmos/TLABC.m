@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = TLABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = TLABC(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %   TLABC minimiza a fobj usando a metaheurística "Teaching–learning–based artificial bee colony",
 %  conforme descrito em [1]. Autor não indica uma estratégia para tratar os
@@ -8,7 +8,10 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLABC(fobj, LB, UB, POP_SIZE, MA
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
-%   POP_SIZE - Inteiro com o tamanho da população
+%   PARAM - Estrutura com o seguintes campos:
+%      pop - Tamanho da população
+%      limit - Numero de tentativas de melhoramento de uma fonte de alimentos
+%      F     -  fator de escala. numero entre 0 e 1;
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleador que se for VERDADEIRO, ativará as saídas com os vetores
 %           referentes a curva de convergêngia (converg_RMSE e converg_fes)
@@ -24,8 +27,9 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLABC(fobj, LB, UB, POP_SIZE, MA
 %   [1]CHEN, X.et al. Teaching–learning–based artificial bee colony for solar photovoltaic parameter estimation. Applied Energy, Elsevier, v. 212, n. December 2017, p. 1578–1588, 2018. ISSN 03062619. Disponível em: <https://doi.org/10.1016/j.apenergy.2017.12.115>
 
 %% Parâmetros do algoritmo
-LIMIT = 200; % numero de tentativas de melhoramento de uma solução candidata
-F = rand; % fator de escala
+POP_SIZE = PARAM.pop; % tamanho da população
+LIMIT = PARAM.limit; % numero de tentativas de melhoramento de uma solução candidata
+F = PARAM.F; % fator de escala
 
 % Inicialização da população
 DIM = length(LB); % qtd de variaveis de design
