@@ -22,9 +22,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, POP_SIZE, MAX_
 %   [1] 
 %   [2]
 %% parâmetros do algoritmo
-dim = length(LB); % qtd de variaveis de design
-c1 = 2;
-c2 = 2;
+c1 = 2; % personal acceleration coefficient
+c2 = 2; % social acceleration coefficien
 vMax = (UB - LB);
 w = 1;
 %% inicialize positions and velocity

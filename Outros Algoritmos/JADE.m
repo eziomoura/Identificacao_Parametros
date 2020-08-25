@@ -1,4 +1,4 @@
-function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     JADE minimiza a fobj usando a metaheurística "Adaptive Differential 
 % Evolution with Optional External Archive" conforme descrito em [1].
@@ -7,7 +7,10 @@ function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
-%   POP_SIZE - Inteiro com o tamanho da população
+%   PARAM - Estrutura com o seguintes campos:
+%      pop - Tamanho da população
+%      p -  p% melhores, determines the greediness of the mutation strategy
+%      c - controls the rate of parameter adaptation
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
@@ -23,11 +26,10 @@ function [xBest, fBest, fBestCurve, fesCurve] = JADE(fobj, LB, UB, POP_SIZE, MAX
 %   [1] ZHANG, J.; SANDERSON, A. C. JADE: Adaptive differential evolution with optional external archive. IEEE Transactions on Evolutionary Computation, v. 13, n. 5, p. 945–958, 2009. 
 %% parâmetros do algoritmo
 % determines the greediness of the mutation strategy
-p = 5/100; % os p% melhores
+p = PARAM.p; % os p% melhores
 
-% controls the rate of parameter adaptation
-c = 0.1;  
-
+c = PARAM.c; % controls the rate of parameter adaptation
+POP_SIZE = PARAM.pop; % tamanho da população
 % valores iniciais para taxa de mutação e crossover
 uF = 0.5;
 uCR = 0.5;

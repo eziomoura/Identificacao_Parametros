@@ -7,7 +7,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MA
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
 %   UB - Vetor linha com os limites superior de cada parâmetro
-%   POP_SIZE - Inteiro com o tamanho da população
+%   PARAM - Estrutura com o seguintes campos:
+%      pop - Tamanho da população
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergência (converg_RMSE e converg_fes)
@@ -22,14 +23,14 @@ function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, POP_SIZE, MA
 % Fontes:
 %   [1] LI, S.; GU, Q.; GONG, W.; NING, B. An enhanced adaptive differential evolution algorithm for parameter extraction of photovoltaic models. Energy Conversion and Management, v. 205, n. December 2019, p. 112443, 2020. 
 %% parâmetros do algoritmo
-c = 0.1; %*
-p = 5/100;   %*
+c = PARAM.c; % os p% melhores
+p = PARAM.p; % controls the rate of parameter adaptation
+POP_MIN = PARAM.popMin;
+POP_MAX = PARAM.popMax;
 uF = 0.5;
 uCR = 0.5;
-POP_MIN = 4;
-POP_MAX = POP_SIZE; %50
-pop = POP_MAX;
 %% Inicializa a populacao
+pop = POP_MAX;
 DIM = length(LB); % qtd de variaveis de design
 xArchived = [];
 x = LB + (UB - LB).*rand(pop, DIM);
@@ -48,7 +49,7 @@ while(fes + pop <= MAX_FES)
     S_CR = []; S_F = [];
 
     % Ajuste dos parametros
-    CR = randNormal(uCR, 0.1, pop);% voltar aqui
+    CR = randNormal(uCR, 0.1, pop);
     F = randCauchy(uF, 0.1, pop);
     
     % Truncamentos
