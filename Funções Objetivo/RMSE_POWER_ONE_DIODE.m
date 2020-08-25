@@ -5,17 +5,7 @@
 function [RMSE] = RMSE_POWER_ONE_DIODE(x, Vmed, Imed, Vt, POP_SIZE)
 % Imed and Vmed must be a collum vector
 l = length(Imed);
-%     mImed = Imed.*ones(popSize, 1);
-%     mVmed = Vmed.*ones(popSize, 1);
- Pmed = Vmed.*Imed;
-% mPmed = repmat(Pmed.', POP_SIZE,1);
-% mImed = repmat(Imed.', POP_SIZE,1);
-% mVmed = repmat(Vmed.', POP_SIZE,1);
-Iph = x(:,1);
-I0 = x(:,2);
-n = x(:,3);
-Rs = x(:,4);
-Rp = x(:,5);
+Pmed = Vmed.*Imed;
 % RMSE = sqrt(sum((mPmed - Iph + I0.*(exp((mVmed + mImed.*Rs)./(n*Vt))-1) + (mVmed + mImed.*Rs)./Rp).^2.')/l);
 
 RMSE = zeros(1,POP_SIZE); % pre-alocacao de memoria

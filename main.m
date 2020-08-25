@@ -2,7 +2,7 @@ clc; clear; close all;
 % OBS2: CIABC foi perda de tempo. Ver notas no arquivo
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
-CODE_FUN_OBJ = 2; % ver arquivo makeFunObj, para lista de codigos
+CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
 selAlgo = {'EJADE', 'BFS'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 RUNS = 10; % quantidade de execuções distintas
@@ -12,7 +12,7 @@ graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
 addpath('.\Outros Algoritmos')
-load 'data/photowatt.mat'
+load 'data/curvaTeorica.mat'
 plotCurvesEveryRun = false;
 Vmed = [IVCurve.V];   % Vetor de tensoes medidas  [V]
 Imed = [IVCurve.I];   % Vetor de correntes medidas [A]
