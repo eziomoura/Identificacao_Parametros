@@ -3,13 +3,16 @@ switch algoSelected
     case 'BFS'
         f = @BFS;
         param = paramData.BFS;
-
-    case 'JADE'
-        f = @JADE;
-        param = paramData.JADE;
+        
+    case 'SEDE'
+        f = @SEDE;
+        param = paramData.SEDE;
     case 'EJADE'
         f = @EJADE;
         param = paramData.EJADE;
+    case 'JADE'
+        f = @JADE;
+        param = paramData.JADE;
     case 'DE'
         f = @DE;
         param = paramData.DE;

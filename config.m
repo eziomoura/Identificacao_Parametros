@@ -17,6 +17,8 @@ Param.EJADE.popMin = 4;  % ref EJADE.m
 Param.EJADE.p = 0.05; % ref JADE - top p% melhores, determines the greediness of the mutation strategy
 Param.EJADE.c = 0.1; % ref JADE - controls the rate of parameter adaptation
 
+Param.SEDE.pop = 50;
+
 Param.IJAYA.pop = 50;
 Param.PGJAYA.pop = 50;
 
@@ -34,4 +36,4 @@ Param.PSO.w = 1;
 %Param.PSO.vmax = 50;
 
 
-Param.BFS.pop = 50;
+Param.BFS.pop = 45;
