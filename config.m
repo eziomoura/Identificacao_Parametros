@@ -8,6 +8,8 @@ Param.DE.pop = 50;
 Param.DE.F = 0.95; % mutation factor
 Param.DE.CR = 0.8; % crossover probability
 
+Param.SEDE.pop = 50;
+
 Param.JADE.pop = 50; % ref: EJADE.m
 Param.JADE.p = 0.05; % ref JADE - top p% melhores, determines the greediness of the mutation strategy
 Param.JADE.c = 1/20; % ref JADE - controls the rate of parameter adaptation
@@ -17,7 +19,10 @@ Param.EJADE.popMin = 4;  % ref EJADE.m
 Param.EJADE.p = 0.05; % ref JADE - top p% melhores, determines the greediness of the mutation strategy
 Param.EJADE.c = 0.1; % ref JADE - controls the rate of parameter adaptation
 
-Param.SEDE.pop = 50;
+Param.SHADE.pop = 50; % ref: EJADE.m
+Param.SHADE.c = 1/20; % ref JADE - controls the rate of parameter adaptation
+Param.SHADE.H = 100;  %
+
 
 Param.IJAYA.pop = 50;
 Param.PGJAYA.pop = 50;

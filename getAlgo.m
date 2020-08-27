@@ -10,6 +10,9 @@ switch algoSelected
     case 'EJADE'
         f = @EJADE;
         param = paramData.EJADE;
+    case 'SHADE'
+        f = @SHADE;
+        param = paramData.SHADE;
     case 'JADE'
         f = @JADE;
         param = paramData.JADE;

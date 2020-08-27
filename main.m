@@ -2,8 +2,9 @@ clc; clear; close all;
 % OBS2: CIABC foi perda de tempo. Ver notas no arquivo
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
+rng('shuffle'); % avoid repeating the same random number arrays when MATLAB restarts
 CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
-selAlgo = {'ELPSO', 'BFS'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'SHADE', 'BFS'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 RUNS = 30; % quantidade de execuções distintas
 POP = 50; % tamanho da população (>5)
