@@ -37,6 +37,9 @@ switch algoSelected
     case 'PSO'
         f = @PSO;
         param = paramData.PSO;
+    case 'ELPSO'
+        f = @ELPSO;
+        param = paramData.ELPSO;
 
     case 'IJAYA'
         f = @IJAYA;

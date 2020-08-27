@@ -3,16 +3,16 @@ clc; clear; close all;
 % OBS: RMSE deve ser retornado como vetor coluna
 %%
 CODE_FUN_OBJ = 1; % ver arquivo makeFunObj, para lista de codigos
-selAlgo = {'ITLBO', 'BFS'}; % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'ELPSO', 'BFS'}; % Vetor com os algoritmos que deseja avaliar
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
-RUNS = 10; % quantidade de execuções distintas
+RUNS = 30; % quantidade de execuções distintas
 POP = 50; % tamanho da população (>5)
 MAX_FES = 25000; % numero maximo de avalicoes da funcao objetivo
 graphic = false; % deseja plotar curvas IV?
 
 %% Dados de entrada
 addpath('.\Outros Algoritmos')
-load 'data/curvaTeorica.mat'
+load 'data/photowatt.mat'
 plotCurvesEveryRun = false;
 Vmed = [IVCurve.V];   % Vetor de tensoes medidas  [V]
 Imed = [IVCurve.I];   % Vetor de correntes medidas [A]

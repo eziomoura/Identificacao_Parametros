@@ -159,8 +159,8 @@ end
 
 function y = randNormal(mu, sd, N)
 % Generate random numbers within Normal distribuition
-% u - mean
-% c - standard deviation
+% mu - mean
+% sd - standard deviation
 y = randn(1,N)*sd + mu;
 end
 

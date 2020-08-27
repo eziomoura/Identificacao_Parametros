@@ -35,5 +35,13 @@ Param.PSO.c2 = 2;
 Param.PSO.w = 1;
 %Param.PSO.vmax = 50;
 
+Param.ELPSO.pop = 50; % ref[2] - ELPSO.m
+Param.ELPSO.c1 = 2;  % personal acceleration coefficient
+Param.ELPSO.c2 = 2;  % social acceleration coefficien
+Param.ELPSO.w = 0.9; % inertia weight (decresse from 0.9 to 0.4)
+Param.ELPSO.h = 1;   % standard deviation of Gaussian mutation
+Param.ELPSO.s = 2;   % scale factor of cauchy distribuition
+Param.ELPSO.F = 1.2; % scale factor of DE-based mutation
+
 
 Param.BFS.pop = 45;
