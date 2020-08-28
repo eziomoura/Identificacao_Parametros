@@ -1,6 +1,7 @@
 function [xBest, fBest, fBestCurve, fesCurve] = SHADE(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     SHADE minimiza a fobj usando a metaheurística "xx" conforme descrito em [1].
+%     SHADE minimiza a fobj usando a metaheurística "Success-History based 
+% Adaptive DE" conforme descrito em [1].
 %
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -9,7 +10,6 @@ function [xBest, fBest, fBestCurve, fesCurve] = SHADE(fobj, LB, UB, PARAM, MAX_F
 %   PARAM - Estrutura com o seguintes campos:
 %      pop - Tamanho da população
 %      p -  p% melhores, determines the greediness of the mutation strategy
-%      c - controls the rate of parameter adaptation
 %   MAX_FES - Inteiro com o quantidade máxima de avalições da função objetivo
 %   SHOW_CONVERG - Valor boleano que se for VERDADEIRO, ativará as saídas com os vetores 
 %       referentes a curva de convergêngia (converg_RMSE e converg_fes)
@@ -22,10 +22,9 @@ function [xBest, fBest, fBestCurve, fesCurve] = SHADE(fobj, LB, UB, PARAM, MAX_F
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
+%   [1] TANABE, R.; FUKUNAGA, A. Success-history based parameter adaptation for Differential Evolution. 2013 IEEE Congress on Evolutionary Computation, CEC 2013, n. 3, p. 71–78, 2013. 
 %% parâmetros do algoritmo
 % determines the greediness of the mutation strategy
-c = PARAM.c; % controls the rate of parameter adaptation
 H = PARAM.H;
 POP_SIZE = PARAM.pop; % tamanho da população
 % valores iniciais para taxa de mutação e crossover

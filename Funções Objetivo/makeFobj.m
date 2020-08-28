@@ -26,6 +26,9 @@ classdef makeFobj
                     this.f = @RMSE_CURRENT_ONE_DIODE;
                 case 2 
                     this.f = @RMSE_POWER_ONE_DIODE;
+                    
+                case 100
+                    this.f = @unknow_T_RMSE_CURRENT_ONE_DIODE;
                 otherwise
                     error('função objetivo não encontrada');
             end
@@ -33,7 +36,7 @@ classdef makeFobj
         
         function y = Objective(this, x) 
             [POP_SIZE,~] = size(x);
-             y = this.f(x, this.Vmed, this.Imed, this.Vt, POP_SIZE);
+             y = this.f(x, this, POP_SIZE);
         end
     end
 end

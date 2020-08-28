@@ -1,10 +1,11 @@
-%% funcao objetivo, modelo de um diodo
+%% RMSE da corrente - modelo de um diodo
 
-function [RMSE] = RMSE_CURRENT_ONE_DIODE(x, Vmed, Imed, Vt, POP_SIZE)
+function [RMSE] = RMSE_CURRENT_ONE_DIODE(x, IVdata, POP_SIZE)
 % Imed and Vmed must be a collum vector
+Vmed = IVdata.Vmed;
+Imed = IVdata.Imed;
+Vt = IVdata.Vt;
 l = length(Imed);
-%     mImed = Imed.*ones(popSize, 1);
-%     mVmed = Vmed.*ones(popSize, 1);
 mImed = repmat(Imed.', POP_SIZE,1);
 mVmed = repmat(Vmed.', POP_SIZE,1);
 Iph = x(:,1);

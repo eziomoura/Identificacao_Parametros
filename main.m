@@ -41,6 +41,8 @@ Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); RMSE = zeros(RUNS,1);
 if strcmp(selAlgo{1}, 'all')
     selAlgo = listAlgo;
 end
+
+%% executa testes
 config;
 for i = 1: length(selAlgo) 
     fprintf('\nTestando %s \n', selAlgo{i});
@@ -57,6 +59,10 @@ for i = 1: length(selAlgo)
         n(run) = x(3);
         Rs(run) = x(4);
         Rp(run) = x(5);
+        %% apagar
+        temperatura = x(6)
+        fprintf('\n n = %f', n(run));
+        %%
         
         elapsedTime(run) = toc;
         fprintf(' Iph(A) = %f', Iph(run));
@@ -70,7 +76,7 @@ for i = 1: length(selAlgo)
     result(i).converg = converg;
     result(i).name = selAlgo{i};   
 end
-
+%% Tratamento dos resultados
 %% Tratar cuvas de convergência com tamanhos diferentes
 for i = 1: length(result)
     qtdEle = 0;
