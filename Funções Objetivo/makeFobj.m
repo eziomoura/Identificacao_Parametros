@@ -20,7 +20,7 @@ classdef makeFobj
             this.Imed = Imed;
             this.Ns = Ns;
             this.T = T + 273.15;
-            this.Vt = Ns*this.k*this.T/this.q;
+            this.Vt = Ns * this.k * this.T / this.q;
             switch typeFobj
                 case 1
                     this.f = @RMSE_CURRENT_ONE_DIODE;
