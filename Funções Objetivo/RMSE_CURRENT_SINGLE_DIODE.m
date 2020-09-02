@@ -1,5 +1,5 @@
 %% RMSE (aproximado em uma iter) da corrente - modelo de um diodo
-function [RMSE] = RMSE_CURRENT_ONE_DIODE(x, IVdata, POP_SIZE)
+function [RMSE] = RMSE_CURRENT_SINGLE_DIODE(x, IVdata, POP_SIZE)
 Vmed = IVdata.Vmed(:);
 Imed = IVdata.Imed(:);
 Vt = IVdata.Vt;
