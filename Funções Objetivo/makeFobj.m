@@ -23,7 +23,7 @@ classdef makeFobj
             this.Vt = Ns * this.k * this.T / this.q;
             switch typeFobj
                 case 1
-                    this.f = @RMSE_CURRENT_ONE_DIODE;
+                    this.f = @RMSE_CURRENT_SINGLE_DIODE;
                 case 2 
                     this.f = @RMSE_POWER_ONE_DIODE;
                     
