@@ -1,6 +1,6 @@
 function [xbest,fbest, fBestCurve, fesCurve] = NelderMead(fobj, x0, tol, maxFes, SHOW_CONVERG)
 % Descrição
-%     NelderMead minimiza a fobj usando a metaheurística "Nelder-Mead Simplex Procedure"
+%     NelderMead minimiza a fobj usando o método "Nelder-Mead Simplex Procedure"
 % conforme descrito em [1]. Inicialização inspirada no metodo inidicado em
 % [2].
 %
@@ -20,7 +20,7 @@ function [xbest,fbest, fBestCurve, fesCurve] = NelderMead(fobj, x0, tol, maxFes,
 %       final de cada iteração
 %
 % Fontes:
-%   [1] LI, S.; GONG, W.; YAN, X.; HU, C.; BAI, D.; WANG, L. Parameter estimation of photovoltaic models with memetic adaptive differential evolution. Solar Energy, v. 190, n. September 2018, p. 465–474, 2019. 
+%   [1] LAGARIAS, JEFFREY, C.; REEDS, JAMES, A.; WRIGHT, MARGARET, H.; WRIGHT, PAUL, E. Convergence properties of the nelder–mead simplex method in low dimensions. SIAM Journal on Optimization, v. 9, n. 1, p. 112–147, 1998. 
 %   [2] http://var.scholarpedia.org/article/Nelder-Mead_algorithm
 n = length(x0);
 % Parametros
@@ -50,6 +50,7 @@ for i = 1:n
 end
 fes = n+1;
 iter = 1;
+shrink = false;
 
 % 1- Order
 [f, id] = sort(f);
@@ -60,8 +61,6 @@ if SHOW_CONVERG
     fesCurve(iter,1) = fes;
 end
 while fes + (2+n) <= maxFes
-    shrink = false;
-
     % 2- Reflect
     xcen = mean( s(1:n,:) ); % centroide dos n melhores
     xr = (1 + rho)*xcen - rho*s(end,:);
@@ -135,6 +134,7 @@ while fes + (2+n) <= maxFes
     if f(1) < tol
         break
     end
+    shrink = false;
 end
 fbest = f(1);
 xbest = s(1,:);

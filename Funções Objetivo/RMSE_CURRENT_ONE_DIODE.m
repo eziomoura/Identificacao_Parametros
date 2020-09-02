@@ -1,9 +1,7 @@
-%% RMSE da corrente - modelo de um diodo
-
+%% RMSE (aproximado em uma iter) da corrente - modelo de um diodo
 function [RMSE] = RMSE_CURRENT_ONE_DIODE(x, IVdata, POP_SIZE)
-% Imed and Vmed must be a collum vector
-Vmed = IVdata.Vmed;
-Imed = IVdata.Imed;
+Vmed = IVdata.Vmed(:);
+Imed = IVdata.Imed(:);
 Vt = IVdata.Vt;
 l = length(Imed);
 mImed = repmat(Imed.', POP_SIZE,1);

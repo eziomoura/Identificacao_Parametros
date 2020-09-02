@@ -22,6 +22,10 @@ Param.EJADE.c = 0.1; % ref JADE - controls the rate of parameter adaptation
 Param.SHADE.pop = 50; % ref[1] em SHADE.m
 Param.SHADE.H = 100;  % ref[1] em SHADE.m
 
+Param.MADE.pop = 50; % ref[1] em MADE.m
+Param.MADE.H = 100;  % ref[1] em MADE.m
+Param.MADE.epsilon = 0.05;  % ref[1] em MADE.m, criterio para aplicar NM: f(x) < epsilon
+
 
 Param.IJAYA.pop = 50;
 Param.PGJAYA.pop = 50;
