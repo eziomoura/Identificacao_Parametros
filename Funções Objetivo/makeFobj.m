@@ -7,6 +7,9 @@ classdef makeFobj
         k = 1.3806503e-23;    % Boltzmann [J/K] 1.380649 [1.38065040000000e-23]
         q = 1.60217646e-19;   % Electron charge [C]
         Vt                    % tensão térmica
+        metrica
+        modelo
+        grandeza
     end
     
     properties (Access = private)
@@ -24,11 +27,15 @@ classdef makeFobj
             switch typeFobj
                 case 1
                     this.f = @RMSE_CURRENT_SINGLE_DIODE;
+                    this.metrica = 'RMSE';
+                    this.modelo = '1D';
+                    this.grandeza = 'CURRENT';
                 case 2 
                     this.f = @RMSE_POWER_ONE_DIODE;
+                    this.metrica = 'RMSE';
+                    this.modelo = '1D';
+                    this.grandeza = 'POWER';
                     
-                case 100
-                    this.f = @unknow_T_RMSE_CURRENT_ONE_DIODE;
                 otherwise
                     error('função objetivo não encontrada');
             end

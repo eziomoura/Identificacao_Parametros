@@ -8,11 +8,11 @@ addpath('.\Funções Objetivo')
 load 'data/allCurves.mat'
 %%
 selectedCurves = [1,2];
-CODE_FUN_OBJ = [1,2]; % ver arquivo makeFunObj, para lista de codigos
-selAlgo = { 'BFS','EJADE'}; % Vetor com os algoritmos que deseja avaliar
-RUNS = 10; % quantidade de execuções distintas
-MAX_FES = 100; % numero maximo de avalicoes da funcao objetivo
-paramData; % carrega parametros configurados para cada algoritmo
+CODE_FUN_OBJ = [1,2];       % ver arquivo makeFunObj, para lista de codigos
+selAlgo = {'BFS','EJADE'};  % Vetor com os algoritmos que deseja avaliar
+RUNS = 10;                  % quantidade de execuções distintas
+MAX_FES = 100;            % numero maximo de avalicoes da funcao objetivo
+paramData;                  % carrega parametros configurados para cada algoritmo
 % graphic = false; % deseja plotar curvas IV?
 % plotCurvesEveryRun = false;
 
@@ -26,15 +26,15 @@ end
 %converg_curve = zeros(RUNS, maxIter);
 elapsedTime = zeros(1,RUNS);
 Iph = zeros(RUNS,1); I0 = zeros(RUNS,1); n = zeros(RUNS,1);
-Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); RMSE = zeros(RUNS,1);
+Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); f = zeros(RUNS,1);
 
 %% Dados de entrada
 for i = 1: length(selectedCurves)
     % carrega dados da curva
-    Vmed = [IVCurve(i).V];   % Vetor de tensoes medidas  [V]
-    Imed = [IVCurve(i).I];   % Vetor de correntes medidas [A]
-    Tc   = [IVCurve(i).T];   % Temperatura [ºC]
-    Ns   = [IVCurve(i).Ns];  % Numero de celulas em serie
+    Vmed = [IVCurves(i).V];   % Vetor de tensoes medidas  [V]
+    Imed = [IVCurves(i).I];   % Vetor de correntes medidas [A]
+    Tc   = [IVCurves(i).T];   % Temperatura [ºC]
+    Ns   = [IVCurves(i).Ns];  % Numero de celulas em serie
     
     % itera sobre as funcões objetivo desejadas
     for numFun = 1:length(CODE_FUN_OBJ)
@@ -44,7 +44,7 @@ for i = 1: length(selectedCurves)
         fobj = @fun.Objective;
         
         % Define Limites físicos do modelo
-        [limite_inf, limite_sup] = getLimit(funType, Ns);
+        [limite_inf, limite_sup] = getLimit(CODE_FUN_OBJ(numFun), Ns);
         
         % itera sobre todos as metaheuristicas
         for iAlgo = 1: length(selAlgo)
@@ -54,73 +54,118 @@ for i = 1: length(selectedCurves)
                 [metaheuristic, prmt] = getAlgo(selAlgo{iAlgo}, Param);
                 fprintf('\nExecução %d \n', run)
                 tic
-                [x, RMSE(run), converg(run).RMSE, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup,...
-                    prmt, MAX_FES, true);
+                [x, f(run), converg(run).f, converg(run).fes] =  metaheuristic(fobj, limite_inf, limite_sup,...
+                                                                                       prmt, MAX_FES, true);
+                
+                elapsedTime(run) = toc;
+                data(run,:) = x;
                 
                 Iph(run) = x(1);
                 I0(run) = x(2);
                 n(run) = x(3);
                 Rs(run) = x(4);
                 Rp(run) = x(5);
-                
-                elapsedTime(run) = toc;
                 fprintf(' Iph(A) = %f', Iph(run));
                 fprintf('\n I0(uA) = %f', I0(run)*10^6);
                 fprintf('\n n = %f', n(run));
                 fprintf('\n Rs(ohms) = %f', Rs(run));
                 fprintf('\n Rp(ohms) = %f', Rp(run));
-                fprintf('\n RMSE = %f *10^-3\n', RMSE(run)*10^3);
+                fprintf('\n RMSE = %f *10^-3\n', f(run)*10^3);
             end
-            result(iAlgo).data = [Iph, I0, n, Rs, Rp, RMSE];
+            result(iAlgo).x = data;
+            result(iAlgo).f = f;
+            result(iAlgo).duration = elapsedTime;
             result(iAlgo).converg = converg;
             result(iAlgo).name = selAlgo{iAlgo};
         end
         model(numFun).result = result;
-        model(numFun).Fobj = CODE_FUN_OBJ(numFun);
+        model(numFun).metrica = fun.metrica;
+        model(numFun).grandeza = fun.grandeza;
+        model(numFun).modelo = fun.modelo;
     end
+    Benchmark(i).name = IVCurves(i).name;
+    Benchmark(i).model =  model;
 end
 
 
 
 %% Tratamento dos resultados
 % Tratar curvas de convergência com tamanhos diferentes
-for iAlgo = 1: length(result)
-    qtdEle = 0;
-    for j = 1:length([result(iAlgo).converg])
-        qtdEle(j) = numel([result(iAlgo).converg(j).RMSE]);
+% adicionando NaN para vetores possuirem mesma dimensão
+for i = 1: length(selectedCurves)
+    for numFun = 1:length(CODE_FUN_OBJ)
+        result = Benchmark(i).model(numFun).result;
+        for iAlgo = 1: length(result)
+            qtdEle = 0;
+            for j = 1:length([result(iAlgo).converg])
+                qtdEle(j) = numel([result(iAlgo).converg(j).f]);
+            end
+            maior = max(qtdEle);
+            matrizRMSE = NaN(maior, maior);
+            matrizfes = NaN(maior, maior);
+            for j = 1:length([result(iAlgo).converg])
+                matrizRMSE(1:qtdEle(j), j) = [result(iAlgo).converg(j).f];
+                matrizfes(1:qtdEle(j), j)  = [result(iAlgo).converg(j).fes];
+            end
+            result(iAlgo).matrizRMSE = matrizRMSE;
+            result(iAlgo).matrizfes = matrizfes;
+        end
+        Benchmark(i).model(numFun).result = result;
     end
-    maior = max(qtdEle);
-    matrizRMSE = NaN(maior, maior);
-    matrizfes = NaN(maior, maior);
-    for j = 1:length([result(iAlgo).converg])
-        matrizRMSE(1:qtdEle(j), j) = [result(iAlgo).converg(j).RMSE];
-        matrizfes(1:qtdEle(j), j) = [result(iAlgo).converg(j).fes];
+end
+
+% Graficos, tabelas e testes estatisticos
+iter = 1;
+for i = 1: length(selectedCurves)
+    for numFun = 1:length(CODE_FUN_OBJ)
+        result = Benchmark(i).model(numFun).result;
+        modelo = Benchmark(i).model(numFun).modelo;
+        metrica = Benchmark(i).model(numFun).metrica;
+        grandeza = Benchmark(i).model(numFun).grandeza;
+        
+        % Tabela com melhor f de cada metaheuristica
+        for iAlgo = 1: length(result)
+            [fval, idBest] = min(result(iAlgo).f);
+            tabelaBest(iAlgo,:) = [result(iAlgo).x(idBest,:)];
+            fbest(iAlgo,1) = fval;
+        end
+        if strcmp(modelo, '1D')
+            labels = {'Iph', 'I0', 'n', 'Rs', 'Rp'};
+        else
+            labels = {'Iph', 'I01', 'I02', 'n1','n2', 'Rs', 'Rp'};
+        end
+        
+        tabela_melhores = array2table(tabelaBest, 'VariableNames', labels);
+        Algorithm = {result(:).name}.';
+        tabela_melhores = addvars(tabela_melhores, Algorithm, 'Before','Iph');
+        tabela_melhores = addvars(tabela_melhores, fbest, 'After','Rp', 'NewVariableNames', metrica);
+        tabela_melhores.Properties.Description = sprintf('comparativo - %s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
+        vetor_de_tabelas(iter) = tabela_melhores;
+        
+        %Tabela max, min, mean, sd and CPUtime
+
+        % Plotar curvas de convergência
+        figure
+        for iAlgo = 1: length(result)
+            converg_curve_mean = mean([result(iAlgo).matrizRMSE], 2, 'omitnan');
+            fes = mean([result(iAlgo).matrizfes], 2, 'omitnan');
+            semilogy(fes, converg_curve_mean);
+            hold on
+        end
+        legend(selAlgo);
+        xlabel('fes', 'FontSize',18);
+        ylabel('f(log)', 'FontSize',18);
+        title(sprintf('%s - %s da %s - Curvas de convergência - Modelo: %s', IVCurves(selectedCurves(i)).name, metrica, grandeza, modelo))
+        
+        % Plotar boxplot do f
+        figure
+        for iAlgo = 1: length(result)
+            vRMSE(:,iAlgo) =  result(iAlgo).f;
+        end
+        boxplot(vRMSE, selAlgo)
+        title(sprintf('%s - %s da %s - boxplot - Modelo: %s', IVCurves(selectedCurves(i)).name,  metrica, grandeza, modelo))
     end
-    result(iAlgo).matrizRMSE = matrizRMSE;
-    result(iAlgo).matrizfes = matrizfes;
 end
-
-% plotar curvas de convergência
-figure
-for iAlgo = 1: length(result)
-    converg_curve_mean = mean([result(iAlgo).matrizRMSE], 2, 'omitnan');
-    fes = mean([result(iAlgo).matrizfes], 2, 'omitnan');
-    semilogy(fes, converg_curve_mean);
-    hold on
-end
-legend(selAlgo);
-xlabel('fes', 'FontSize',18);
-ylabel('RMSE(log)', 'FontSize',18);
-
-% Plotar boxplot do RMSE
-figure
-for iAlgo = 1: length(result)
-    values = result(iAlgo).data;
-    vRMSE(:,iAlgo) = values(:,6);
-end
-boxplot(vRMSE, selAlgo)
-
-
 
 
 
