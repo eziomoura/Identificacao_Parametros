@@ -6,15 +6,13 @@ rng('shuffle');% avoid repeating the same random number arrays when MATLAB resta
 addpath('.\Outros Algoritmos')
 addpath('.\Funções Objetivo')
 load 'data/allCurves.mat'
-%%
+%% options
 selectedCurves = [1,2];
 CODE_FUN_OBJ = [1,2];       % ver arquivo makeFunObj, para lista de codigos
 selAlgo = {'BFS','EJADE'};  % Vetor com os algoritmos que deseja avaliar
 RUNS = 10;                  % quantidade de execuções distintas
 MAX_FES = 100;            % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
-% graphic = false; % deseja plotar curvas IV?
-% plotCurvesEveryRun = false;
 
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 if strcmp(selAlgo{1}, 'all')
@@ -28,7 +26,7 @@ elapsedTime = zeros(1,RUNS);
 Iph = zeros(RUNS,1); I0 = zeros(RUNS,1); n = zeros(RUNS,1);
 Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); f = zeros(RUNS,1);
 
-%% Dados de entrada
+%% Testes
 for i = 1: length(selectedCurves)
     % carrega dados da curva
     Vmed = [IVCurves(i).V];   % Vetor de tensoes medidas  [V]
@@ -114,7 +112,7 @@ for i = 1: length(selectedCurves)
     end
 end
 
-% Graficos, tabelas e testes estatisticos
+%% Graficos, tabelas e testes estatisticos
 iter = 1;
 for i = 1: length(selectedCurves)
     for numFun = 1:length(CODE_FUN_OBJ)
@@ -134,15 +132,25 @@ for i = 1: length(selectedCurves)
         else
             labels = {'Iph', 'I01', 'I02', 'n1','n2', 'Rs', 'Rp'};
         end
-        
         tabela_melhores = array2table(tabelaBest, 'VariableNames', labels);
         Algorithm = {result(:).name}.';
         tabela_melhores = addvars(tabela_melhores, Algorithm, 'Before','Iph');
         tabela_melhores = addvars(tabela_melhores, fbest, 'After','Rp', 'NewVariableNames', metrica);
         tabela_melhores.Properties.Description = sprintf('comparativo - %s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
-        vetor_de_tabelas(iter) = tabela_melhores;
+        vetor_de_tabelas_melhores{iter} = tabela_melhores;
         
         %Tabela max, min, mean, sd and CPUtime
+        for iAlgo = 1: length(result)
+            fmin(iAlgo,1)  = min(result(iAlgo).f);
+            fmax(iAlgo,1)  = max(result(iAlgo).f);
+            fmean(iAlgo,1) = mean(result(iAlgo).f);
+            fstd(iAlgo,1)  = std(result(iAlgo).f);
+            ftime(iAlgo,1) = mean(result(iAlgo).duration);
+        end
+        labels = {'Algorithm', 'Min', 'Max', 'Mean', 'Std', 'CPU time'};
+        tabela_max_min_mean_sd_cpu = table(Algorithm, fmin, fmax, fmean, fstd, ftime, 'VariableNames', labels);
+        vetor_de_tabela_max_min_mean_sd_cpu{iter} = tabela_max_min_mean_sd_cpu;
+        
 
         % Plotar curvas de convergência
         figure
