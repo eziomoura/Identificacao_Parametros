@@ -139,7 +139,7 @@ for i = 1: length(selectedCurves)
         tabela_melhores.Properties.Description = sprintf('comparativo - %s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
         vetor_de_tabelas_melhores{iter} = tabela_melhores;
         
-        %Tabela max, min, mean, sd and CPUtime
+        % Tabela max, min, mean, sd and CPUtime
         for iAlgo = 1: length(result)
             fmin(iAlgo,1)  = min(result(iAlgo).f);
             fmax(iAlgo,1)  = max(result(iAlgo).f);
@@ -150,6 +150,29 @@ for i = 1: length(selectedCurves)
         labels = {'Algorithm', 'Min', 'Max', 'Mean', 'Std', 'CPU time'};
         tabela_max_min_mean_sd_cpu = table(Algorithm, fmin, fmax, fmean, fstd, ftime, 'VariableNames', labels);
         vetor_de_tabela_max_min_mean_sd_cpu{iter} = tabela_max_min_mean_sd_cpu;
+        
+        
+        % Teste de wilcoxon (identificar se há diferenças significativas
+        % entres os algoritmos de teste
+        % H0: BFS não é diferente do outro algoritmo [median(BFS) = median(outro algorimo)]
+        % Ha: BFS não é diferente
+        % nivel de significancia: 0.05
+        alfa = 0.05;
+        idBFS = sum(strcmp({result(:).name}, 'BFS'));
+        for i = 1:length(result)
+            if i ~= idBFS
+                pval = signrank(result(idBFS).f, result(i).f);
+                if pval < alfa
+                    if median(result(idBFS).f) < median(result(i).f)
+                        wilcoxon(i) = '+';
+                    else
+                        wilcoxon(i) = '-';
+                    end
+                else
+                    wilcoxon(i) = '=';
+                end
+            end
+        end
         
 
         % Plotar curvas de convergência
