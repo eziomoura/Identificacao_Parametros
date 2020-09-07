@@ -18,24 +18,29 @@ classdef makeFobj
     end
     
     methods
-        function this = makeFobj(Vmed, Imed, Ns, T, typeFobj)
+        function this = makeFobj(Vmed, Imed, Ns, T, obj_code)
             this.Vmed = Vmed;
             this.Imed = Imed;
             this.Ns = Ns;
             this.T = T + 273.15;
             this.Vt = Ns * this.k * this.T / this.q;
-            switch typeFobj
-                case 1
-                    this.f = @RMSE_CURRENT_SINGLE_DIODE;
-                    this.metrica = 'RMSE';
-                    this.modelo = '1D';
-                    this.grandeza = 'CURRENT';
-                case 2 
-                    this.f = @RMSE_POWER_ONE_DIODE;
-                    this.metrica = 'RMSE';
-                    this.modelo = '1D';
-                    this.grandeza = 'POWER';
-                    
+            this.modelo   = obj_code.modelo;
+            this.metrica  = obj_code.metrica;
+            this.grandeza = obj_code.grandeza;
+            switch obj_code.modelo
+                case '1D'
+                    if (obj_code.metrica == 'RMSE' & obj_code.grandeza == 'I')
+                        this.f = @RMSE_CURRENT_SINGLE_DIODE;
+                    elseif(obj_code.metrica == 'RMSE' & obj_code.grandeza == 'P')
+                        this.f = @RMSE_POWER_ONE_DIODE;
+                    else
+                        error('função objetivo não encontrada');
+                    end
+                        
+                case '2D'
+                    if (obj_code.metrica == 'RMSE' & obj_code.grandeza == 'I')
+                        this.f = @RMSE_CURRENT_DOUBLE_DIODE;
+                    end
                 otherwise
                     error('função objetivo não encontrada');
             end
