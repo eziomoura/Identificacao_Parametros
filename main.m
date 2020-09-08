@@ -17,7 +17,7 @@ objetivo.modelos = {'1D','2D'};% 1D - um diodo; 2D - dois diodos
 
 selAlgo = {'BFS','EJADE'};  % Vetor com os algoritmos que deseja avaliar
 RUNS = 10;                  % quantidade de execuções distintas
-MAX_FES = 1000;              % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 100;              % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
@@ -172,7 +172,7 @@ for numFun = 1:numObjs
         Algorithm = {result(:).name}.';
         tabela_melhores = addvars(tabela_melhores, Algorithm, 'Before','Iph');
         tabela_melhores = addvars(tabela_melhores, fbest, 'After','Rp', 'NewVariableNames', metrica);
-        tabela_melhores.Properties.Description = sprintf('comparativo - %s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
+        tabela_melhores.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
         vetor_de_tabelas_melhores{iter} = tabela_melhores;
         
         % Tabela max, min, mean, sd and CPUtime
@@ -185,6 +185,7 @@ for numFun = 1:numObjs
         end
         labels = {'Algorithm', 'Min', 'Max', 'Mean', 'Std', 'CPU time'};
         tabela_max_min_mean_sd_cpu = table(Algorithm, fmin, fmax, fmean, fstd, ftime, 'VariableNames', labels);
+        tabela_max_min_mean_sd_cpu.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
         vetor_de_tabela_max_min_mean_sd_cpu{iter} = tabela_max_min_mean_sd_cpu;
         
         
@@ -236,4 +237,13 @@ for numFun = 1:numObjs
         boxplot(vRMSE, selAlgo)
         title(sprintf('%s - %s da %s - boxplot - Modelo: %s', IVCurves(selectedCurves(i)).name,  metrica, grandeza, modelo))
     end
+end
+%% Exportar tabelas para excel
+% tabela melhores
+for i = 1:length(vetor_de_tabelas_melhores)
+    writetable(vetor_de_tabelas_melhores{i},'.\resultados\melhores.xlsx','Sheet',vetor_de_tabelas_melhores{i}.Properties.Description);
+end
+% tabela min max sd time
+for i = 1:length(vetor_de_tabela_max_min_mean_sd_cpu)
+    writetable(vetor_de_tabela_max_min_mean_sd_cpu{i},'.\resultados\minmaxsdtime.xlsx','Sheet',vetor_de_tabela_max_min_mean_sd_cpu{i}.Properties.Description);
 end
