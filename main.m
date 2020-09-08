@@ -9,18 +9,18 @@ addpath('.\Outros Algoritmos')
 addpath('.\Funções Objetivo')
 load 'data/allCurves.mat'
 %% options
-selectedCurves = [1,2];
-%CODE_FUN_OBJ = [1,2];       % ver arquivo makeFunObj, para lista de codigos
+selectedCurves = [1,3];
 objetivo.metricas = {'RMSE'};
-objetivo.grandezas = {'I',}; % I - current, P- Power, V - Voltage
+objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'1D','2D'};% 1D - um diodo; 2D - dois diodos      
 
-selAlgo = {'BFS','EJADE'};  % Vetor com os algoritmos que deseja avaliar
-RUNS = 10;                  % quantidade de execuções distintas
-MAX_FES = 10000;              % numero maximo de avalicoes da funcao objetivo
+selAlgo = {'BFS','EJADE','SEDE','PGJAYA', 'ITLBO'};  % Vetor com os algoritmos que deseja avaliar
+RUNS = 30;                  % quantidade de execuções distintas
+MAX_FES = 25000;              % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
+
 if strcmp(selAlgo{1}, 'all')
     selAlgo = listAlgo;
 end
@@ -46,7 +46,7 @@ Iph = zeros(RUNS,1); I0 = zeros(RUNS,1); n = zeros(RUNS,1);
 Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); f = zeros(RUNS,1);
 
 %% Testes
-for i = 1: length(selectedCurves)
+for i = selectedCurves
     % carrega dados da curva
     Vmed = [IVCurves(i).V];   % Vetor de tensoes medidas  [V]
     Imed = [IVCurves(i).I];   % Vetor de correntes medidas [A]
@@ -171,7 +171,7 @@ for numFun = 1:numObjs
         tabela_melhores = addvars(tabela_melhores, Algorithm, 'Before','Iph');
         tabela_melhores = addvars(tabela_melhores, fbest, 'After','Rp', 'NewVariableNames', metrica);
         tabela_melhores.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(iCurve)).name);
-        vetor_de_tabelas_melhores{iter} = tabela_melhores;
+        vetor_de_tabelas_melhores{iter}.tabela = tabela_melhores;
         
         % Tabela max, min, mean, sd and CPUtime
         for iAlgo = 1: length(result)
@@ -183,8 +183,8 @@ for numFun = 1:numObjs
         end
         labels = {'Algorithm', 'Min', 'Max', 'Mean', 'Std', 'CPU time'};
         tabela_max_min_mean_sd_cpu = table(Algorithm, fmin, fmax, fmean, fstd, ftime, 'VariableNames', labels);
-        tabela_max_min_mean_sd_cpu.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(iCurve)).name);
-        vetor_de_tabela_max_min_mean_sd_cpu{iter} = tabela_max_min_mean_sd_cpu;
+        tabela_max_min_mean_sd_cpu.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, allOutputs(iCurve).name);
+        vetor_de_tabela_max_min_mean_sd_cpu{iter}.tabela = tabela_max_min_mean_sd_cpu;
         
         
         % Teste de wilcoxon (identificar se há diferenças significativas
@@ -194,26 +194,34 @@ for numFun = 1:numObjs
         % nivel de significancia: 0.05
         % rever
         alfa = 0.05;
+        ref = 'BFS';
         for i = 1:length(result)
-            if strcmp({result(i).name}, 'BFS')
-                idBFS = i;
+            if strcmp({result(i).name}, ref)
+                idRef = i;
                 break;
             end
         end
+        itemp = 0;
         for i = 1:length(result)
-            if idBFS ~= i
-                pval = signrank(result(idBFS).f, result(i).f);
-                if pval < alfa
-                    if median(result(idBFS).f) < median(result(i).f)
-                        wilcoxon(i) = '+';
+            if idRef ~= i
+                itemp = itemp + 1;
+                p_value(itemp,1) = signrank(result(idRef).f, result(itemp).f);
+                if p_value(itemp,1) <= alfa
+                    if (median(result(idRef).f - result(itemp).f) > 0)
+                        win(itemp,1) = '+';
                     else
-                        wilcoxon(i) = '-';
+                        win(itemp,1) = '-';
                     end
                 else
-                    wilcoxon(i) = '=';
+                    win(itemp,1) = '=';
                 end
             end
         end
+        tabela_wilcoxon = table(p_value, win);
+        ref_vs = {result([1:idRef-1, idRef+1:end]).name}.';
+        tabela_wilcoxon = addvars(tabela_wilcoxon, ref_vs, 'Before','p_value');
+        tabela_wilcoxon.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, allOutputs(iCurve).name);
+        vetor_de_tabelas_wilcoxon{iter}.tabela = tabela_wilcoxon;
         
 
         % Plotar curvas de convergência
@@ -229,7 +237,7 @@ for numFun = 1:numObjs
         xlabel('fes', 'FontSize',18);
         yylabel = sprintf('%s(log)', metrica);
         ylabel(yylabel, 'FontSize',18);
-        title(sprintf('%s - %s da %s - Curvas de convergência - Modelo: %s', IVCurves(selectedCurves(iCurve)).name, metrica, grandeza, modelo))
+        title(sprintf('%s - %s da %s - Curvas de convergência - Modelo: %s', allOutputs(iCurve).name, metrica, grandeza, modelo))
         
         % Plotar boxplot do f
         subplot(2,1,2)
@@ -237,15 +245,21 @@ for numFun = 1:numObjs
             vRMSE(:,iAlgo) =  result(iAlgo).f;
         end
         boxplot(vRMSE, selAlgo)
-        title(sprintf('%s - %s da %s - boxplot - Modelo: %s', IVCurves(selectedCurves(iCurve)).name,  metrica, grandeza, modelo))
+        title(sprintf('%s - %s da %s - boxplot - Modelo: %s', allOutputs(iCurve).name,  metrica, grandeza, modelo))
     end
 end
 %% Exportar tabelas para excel
+% limpa tabelas
+delete('.\resultados\melhores.xlsx','.\resultados\minmaxsdtime.xlsx','.\resultados\wilcoxon_test.xlsx');
 % tabela melhores
 for i = 1:length(vetor_de_tabelas_melhores)
-    writetable(vetor_de_tabelas_melhores{i},'.\resultados\melhores.xlsx','Sheet',vetor_de_tabelas_melhores{i}.Properties.Description);
+    writetable(vetor_de_tabelas_melhores{i}.tabela,'.\resultados\melhores.xlsx','Sheet',vetor_de_tabelas_melhores{i}.tabela.Properties.Description);
 end
 % tabela min max sd time
 for i = 1:length(vetor_de_tabela_max_min_mean_sd_cpu)
-    writetable(vetor_de_tabela_max_min_mean_sd_cpu{i},'.\resultados\minmaxsdtime.xlsx','Sheet',vetor_de_tabela_max_min_mean_sd_cpu{i}.Properties.Description);
+    writetable(vetor_de_tabela_max_min_mean_sd_cpu{i}.tabela,'.\resultados\minmaxsdtime.xlsx','Sheet',vetor_de_tabela_max_min_mean_sd_cpu{i}.tabela.Properties.Description);
+end
+% tabela wilcoxon
+for i = 1:length(vetor_de_tabelas_wilcoxon)
+    writetable(vetor_de_tabelas_wilcoxon{i}.tabela,'.\resultados\wilcoxon_test.xlsx','Sheet',vetor_de_tabelas_wilcoxon{i}.tabela.Properties.Description);
 end

@@ -134,7 +134,7 @@ xBest = x(id,:);
 end
 
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, nBirds)
-% atribui valor aleatorio ao paramentro violar seus limites
+% atribui valor aleatorio ao paramentro que violar seus limites
     u = (xNew < LB) | (xNew > UB);
     randomMatrix = LB + (UB - LB).*rand(nBirds, DIM);
     xNew(u) = randomMatrix(u);
