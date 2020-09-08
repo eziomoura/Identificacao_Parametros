@@ -17,7 +17,7 @@ objetivo.modelos = {'1D','2D'};% 1D - um diodo; 2D - dois diodos
 
 selAlgo = {'BFS','EJADE'};  % Vetor com os algoritmos que deseja avaliar
 RUNS = 10;                  % quantidade de execuções distintas
-MAX_FES = 100;              % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 10000;              % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
@@ -119,8 +119,6 @@ for i = 1: length(selectedCurves)
     allOutputs(i).model =  model;
 end
 
-
-
 %% Tratamento dos resultados
 % Tratar curvas de convergência com tamanhos diferentes
 % adicionando NaN para vetores possuirem mesma dimensão
@@ -150,12 +148,12 @@ end
 iter = 0;
 for numFun = 1:numObjs
     tabelaBest = [];
-    for i = 1: length(selectedCurves)
+    for iCurve = 1: length(selectedCurves)
         iter = iter + 1;
-        result   = allOutputs(i).model(numFun).result;
-        modelo   = allOutputs(i).model(numFun).modelo;
-        metrica  = allOutputs(i).model(numFun).metrica;
-        grandeza = allOutputs(i).model(numFun).grandeza;
+        result   = allOutputs(iCurve).model(numFun).result;
+        modelo   = allOutputs(iCurve).model(numFun).modelo;
+        metrica  = allOutputs(iCurve).model(numFun).metrica;
+        grandeza = allOutputs(iCurve).model(numFun).grandeza;
         
         % Tabela com melhor f de cada metaheuristica
         for iAlgo = 1: length(result)
@@ -172,7 +170,7 @@ for numFun = 1:numObjs
         Algorithm = {result(:).name}.';
         tabela_melhores = addvars(tabela_melhores, Algorithm, 'Before','Iph');
         tabela_melhores = addvars(tabela_melhores, fbest, 'After','Rp', 'NewVariableNames', metrica);
-        tabela_melhores.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
+        tabela_melhores.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(iCurve)).name);
         vetor_de_tabelas_melhores{iter} = tabela_melhores;
         
         % Tabela max, min, mean, sd and CPUtime
@@ -185,7 +183,7 @@ for numFun = 1:numObjs
         end
         labels = {'Algorithm', 'Min', 'Max', 'Mean', 'Std', 'CPU time'};
         tabela_max_min_mean_sd_cpu = table(Algorithm, fmin, fmax, fmean, fstd, ftime, 'VariableNames', labels);
-        tabela_max_min_mean_sd_cpu.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(i)).name);
+        tabela_max_min_mean_sd_cpu.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(iCurve)).name);
         vetor_de_tabela_max_min_mean_sd_cpu{iter} = tabela_max_min_mean_sd_cpu;
         
         
@@ -196,9 +194,14 @@ for numFun = 1:numObjs
         % nivel de significancia: 0.05
         % rever
         alfa = 0.05;
-        idBFS = sum(strcmp({result(:).name}, 'BFS'));
         for i = 1:length(result)
-            if i ~= idBFS
+            if strcmp({result(i).name}, 'BFS')
+                idBFS = i;
+                break;
+            end
+        end
+        for i = 1:length(result)
+            if idBFS ~= i
                 pval = signrank(result(idBFS).f, result(i).f);
                 if pval < alfa
                     if median(result(idBFS).f) < median(result(i).f)
@@ -226,16 +229,15 @@ for numFun = 1:numObjs
         xlabel('fes', 'FontSize',18);
         yylabel = sprintf('%s(log)', metrica);
         ylabel(yylabel, 'FontSize',18);
-        title(sprintf('%s - %s da %s - Curvas de convergência - Modelo: %s', IVCurves(selectedCurves(i)).name, metrica, grandeza, modelo))
+        title(sprintf('%s - %s da %s - Curvas de convergência - Modelo: %s', IVCurves(selectedCurves(iCurve)).name, metrica, grandeza, modelo))
         
         % Plotar boxplot do f
-%         figure
         subplot(2,1,2)
         for iAlgo = 1: length(result)
             vRMSE(:,iAlgo) =  result(iAlgo).f;
         end
         boxplot(vRMSE, selAlgo)
-        title(sprintf('%s - %s da %s - boxplot - Modelo: %s', IVCurves(selectedCurves(i)).name,  metrica, grandeza, modelo))
+        title(sprintf('%s - %s da %s - boxplot - Modelo: %s', IVCurves(selectedCurves(iCurve)).name,  metrica, grandeza, modelo))
     end
 end
 %% Exportar tabelas para excel
