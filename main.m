@@ -15,8 +15,8 @@ objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'1D','2D'};% 1D - um diodo; 2D - dois diodos      
 
 selAlgo = {'BFS','EJADE','SEDE','PGJAYA', 'ITLBO'};  % Vetor com os algoritmos que deseja avaliar
-RUNS = 30;                  % quantidade de execuções distintas
-MAX_FES = 25000;              % numero maximo de avalicoes da funcao objetivo
+RUNS = 10;                  % quantidade de execuções distintas
+MAX_FES = 100;              % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
@@ -46,12 +46,12 @@ Iph = zeros(RUNS,1); I0 = zeros(RUNS,1); n = zeros(RUNS,1);
 Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); f = zeros(RUNS,1);
 
 %% Testes
-for i = selectedCurves
+for i = 1:length(selectedCurves)
     % carrega dados da curva
-    Vmed = [IVCurves(i).V];   % Vetor de tensoes medidas  [V]
-    Imed = [IVCurves(i).I];   % Vetor de correntes medidas [A]
-    Tc   = [IVCurves(i).T];   % Temperatura [ºC]
-    Ns   = [IVCurves(i).Ns];  % Numero de celulas em serie
+    Vmed = [IVCurves(selectedCurves(i)).V];   % Vetor de tensoes medidas  [V]
+    Imed = [IVCurves(selectedCurves(i)).I];   % Vetor de correntes medidas [A]
+    Tc   = [IVCurves(selectedCurves(i)).T];   % Temperatura [ºC]
+    Ns   = [IVCurves(selectedCurves(i)).Ns];  % Numero de celulas em serie
     
     % itera sobre as funcões objetivo desejadas
     for numFun = 1:numObjs
@@ -192,7 +192,6 @@ for numFun = 1:numObjs
         % H0: BFS não é diferente do outro algoritmo [median(BFS) = median(outro algorimo)]
         % Ha: BFS não é diferente
         % nivel de significancia: 0.05
-        % rever
         alfa = 0.05;
         ref = 'BFS';
         for i = 1:length(result)

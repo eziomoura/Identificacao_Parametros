@@ -23,8 +23,8 @@ IVCurve.I = Rsh*(Iph + I0)/(Rs + Rsh) - V/(Rs + Rsh) - (n*Vt/Rs)*lambertw(theta)
 IVCurve.Ns = Ns;
 IVCurve.T = Tc;
 figure
-plot(IVCurve.V, IVCurve.I)
-save('curvaTeorica', 'IVCurve')
+plot(IVCurve.V, IVCurve.I);
+save('curvaTeorica', 'IVCurve');
 
 RMSE2 = sqrt(fobj2(x,IVCurve.V,IVCurve.I, Vt, 1))
 RMSE1 = sqrt(fobj(x,IVCurve.V,IVCurve.I, Vt, 1))
