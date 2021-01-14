@@ -15,7 +15,8 @@ objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'1D'};     % 1D - um diodo; 2D - dois diodos      
 
 selAlgo = {'BFS','EJADE','SEDE','PGJAYA', 'ITLBO'};  % Vetor com os algoritmos que deseja avaliar
-selAlgo = {'BFS','ABC','DE','PSO', 'TLBO'};  % Vetor com os algoritmos que deseja avaliar
+selAlgo = {'BFS','ABC','DE','PSO', 'TLBO'};
+selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas
 MAX_FES = 50000;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
@@ -159,7 +160,7 @@ for numFun = 1:numObjs
         metrica  = allOutputs(iCurve).model(numFun).metrica;
         grandeza = allOutputs(iCurve).model(numFun).grandeza;
         
-        % Tabela com melhor f de cada metaheuristica
+        % Tabela com melhor f(x_best) de cada metaheuristica
         for iAlgo = 1: length(result_metaheuristc)
             [fval, idBest] = min(result_metaheuristc(iAlgo).f);
             tabelaBest(iAlgo,:) = [result_metaheuristc(iAlgo).x(idBest,:)];
@@ -198,26 +199,27 @@ for numFun = 1:numObjs
         % nivel de significancia: 0.05
         alfa = 0.05;
         ref = 'BFS';
+        p_value = []; 
         for i = 1:length(result_metaheuristc)
             if strcmp({result_metaheuristc(i).name}, ref)
                 idRef = i;
                 break;
             end
         end
-        itemp = 0;
+        itemp = 1;
         for i = 1:length(result_metaheuristc)
-            if idRef ~= i
-                itemp = itemp + 1;
-                p_value(itemp,1) = signrank(result_metaheuristc(idRef).f, result_metaheuristc(itemp).f);
+            if  i ~= idRef
+                p_value(itemp,1) = signrank(result_metaheuristc(idRef).f, result_metaheuristc(i).f);
                 if p_value(itemp,1) <= alfa
-                    if (median(result_metaheuristc(idRef).f - result_metaheuristc(itemp).f) > 0)
-                        win(itemp,1) = '+';
-                    else
+                    if (median(result_metaheuristc(idRef).f - result_metaheuristc(i).f) > 0)
                         win(itemp,1) = '-';
+                    else
+                        win(itemp,1) = '+';
                     end
                 else
                     win(itemp,1) = '=';
                 end
+                itemp = itemp+1;
             end
         end
         tabela_wilcoxon = table(p_value, win);
@@ -266,3 +268,4 @@ end
 for i = 1:length(vetor_de_tabelas_wilcoxon)
     writetable(vetor_de_tabelas_wilcoxon{i}.tabela,'.\resultados\wilcoxon_test.xlsx','Sheet',vetor_de_tabelas_wilcoxon{i}.tabela.Properties.Description);
 end
+beep
