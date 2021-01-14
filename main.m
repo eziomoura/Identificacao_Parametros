@@ -12,15 +12,15 @@ load 'data/allCurves.mat'
 selectedCurves = [1,3];
 objetivo.metricas = {'RMSE'};
 objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
-objetivo.modelos = {'1D','2D'};% 1D - um diodo; 2D - dois diodos      
+objetivo.modelos = {'1D'};     % 1D - um diodo; 2D - dois diodos      
 
 selAlgo = {'BFS','EJADE','SEDE','PGJAYA', 'ITLBO'};  % Vetor com os algoritmos que deseja avaliar
-RUNS = 10;                  % quantidade de execuções distintas
-MAX_FES = 100;              % numero maximo de avalicoes da funcao objetivo
+selAlgo = {'BFS','ABC','DE','PSO', 'TLBO'};  % Vetor com os algoritmos que deseja avaliar
+RUNS = 30;                  % quantidade de execuções distintas
+MAX_FES = 50000;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
-
 if strcmp(selAlgo{1}, 'all')
     selAlgo = listAlgo;
 end
@@ -45,7 +45,7 @@ elapsedTime = zeros(1,RUNS);
 Iph = zeros(RUNS,1); I0 = zeros(RUNS,1); n = zeros(RUNS,1);
 Rs = zeros(RUNS,1);  Rp = zeros(RUNS,1); f = zeros(RUNS,1);
 
-%% Testes
+%% Testes para cada curva
 for i = 1:length(selectedCurves)
     % carrega dados da curva
     Vmed = [IVCurves(selectedCurves(i)).V];   % Vetor de tensoes medidas  [V]
@@ -104,43 +104,47 @@ for i = 1:length(selectedCurves)
                 fprintf('\n RMSE = %f *10^-3\n', f(run)*10^3);
                 
             end
-            result(iAlgo).x = data;
-            result(iAlgo).f = f;
-            result(iAlgo).duration = elapsedTime;
-            result(iAlgo).converg = converg;
-            result(iAlgo).name = selAlgo{iAlgo};
-        end
-        model(numFun).result = result;
+            % result guarda o resultado de todas metaheuristica para uma
+            % curva especifica com modelo especificado
+            result_metaheuristc(iAlgo).x = data;
+            result_metaheuristc(iAlgo).f = f;
+            result_metaheuristc(iAlgo).duration = elapsedTime;
+            result_metaheuristc(iAlgo).converg = converg;
+            result_metaheuristc(iAlgo).name = selAlgo{iAlgo};
+        end % fim loop por todas metaheuristicas
+        % model guarda o resultado de todas metaheuristica para uma
+        % curva especifica com modelo especificado
+        model(numFun).result = result_metaheuristc;
         model(numFun).metrica = fun.metrica;
         model(numFun).grandeza = fun.grandeza;
         model(numFun).modelo = fun.modelo;
-    end
-    allOutputs(i).name = IVCurves(i).name;
+    end % fim loop por todos modelos
+    allOutputs(i).name = IVCurves(selectedCurves(i)).name;
     allOutputs(i).model =  model;
-end
+end% fim loop por todas as curvas
 
 %% Tratamento dos resultados
 % Tratar curvas de convergência com tamanhos diferentes
 % adicionando NaN para vetores possuirem mesma dimensão
 for i = 1: length(selectedCurves)
     for numFun = 1:numObjs
-        result = allOutputs(i).model(numFun).result;
-        for iAlgo = 1: length(result)
+        result_metaheuristc = allOutputs(i).model(numFun).result;
+        for iAlgo = 1: length(result_metaheuristc)
             qtdEle = 0;
-            for j = 1:length([result(iAlgo).converg])
-                qtdEle(j) = numel([result(iAlgo).converg(j).f]);
+            for j = 1:length([result_metaheuristc(iAlgo).converg])
+                qtdEle(j) = numel([result_metaheuristc(iAlgo).converg(j).f]);
             end
             maior = max(qtdEle);
             matrizRMSE = NaN(maior, maior);
             matrizfes = NaN(maior, maior);
-            for j = 1:length([result(iAlgo).converg])
-                matrizRMSE(1:qtdEle(j), j) = [result(iAlgo).converg(j).f];
-                matrizfes(1:qtdEle(j), j)  = [result(iAlgo).converg(j).fes];
+            for j = 1:length([result_metaheuristc(iAlgo).converg])
+                matrizRMSE(1:qtdEle(j), j) = [result_metaheuristc(iAlgo).converg(j).f];
+                matrizfes(1:qtdEle(j), j)  = [result_metaheuristc(iAlgo).converg(j).fes];
             end
-            result(iAlgo).matrizRMSE = matrizRMSE;
-            result(iAlgo).matrizfes = matrizfes;
+            result_metaheuristc(iAlgo).matrizRMSE = matrizRMSE;
+            result_metaheuristc(iAlgo).matrizfes = matrizfes;
         end
-        allOutputs(i).model(numFun).result = result;
+        allOutputs(i).model(numFun).result = result_metaheuristc;
     end
 end
 
@@ -150,15 +154,15 @@ for numFun = 1:numObjs
     tabelaBest = [];
     for iCurve = 1: length(selectedCurves)
         iter = iter + 1;
-        result   = allOutputs(iCurve).model(numFun).result;
+        result_metaheuristc   = allOutputs(iCurve).model(numFun).result;
         modelo   = allOutputs(iCurve).model(numFun).modelo;
         metrica  = allOutputs(iCurve).model(numFun).metrica;
         grandeza = allOutputs(iCurve).model(numFun).grandeza;
         
         % Tabela com melhor f de cada metaheuristica
-        for iAlgo = 1: length(result)
-            [fval, idBest] = min(result(iAlgo).f);
-            tabelaBest(iAlgo,:) = [result(iAlgo).x(idBest,:)];
+        for iAlgo = 1: length(result_metaheuristc)
+            [fval, idBest] = min(result_metaheuristc(iAlgo).f);
+            tabelaBest(iAlgo,:) = [result_metaheuristc(iAlgo).x(idBest,:)];
             fbest(iAlgo,1) = fval;
         end
         if strcmp(modelo, '1D')
@@ -167,19 +171,19 @@ for numFun = 1:numObjs
             labels = {'Iph', 'I01', 'I02', 'n1','n2', 'Rs', 'Rp'};
         end
         tabela_melhores = array2table(tabelaBest, 'VariableNames', labels);
-        Algorithm = {result(:).name}.';
+        Algorithm = {result_metaheuristc(:).name}.';
         tabela_melhores = addvars(tabela_melhores, Algorithm, 'Before','Iph');
         tabela_melhores = addvars(tabela_melhores, fbest, 'After','Rp', 'NewVariableNames', metrica);
         tabela_melhores.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, IVCurves(selectedCurves(iCurve)).name);
         vetor_de_tabelas_melhores{iter}.tabela = tabela_melhores;
         
         % Tabela max, min, mean, sd and CPUtime
-        for iAlgo = 1: length(result)
-            fmin(iAlgo,1)  = min(result(iAlgo).f);
-            fmax(iAlgo,1)  = max(result(iAlgo).f);
-            fmean(iAlgo,1) = mean(result(iAlgo).f);
-            fstd(iAlgo,1)  = std(result(iAlgo).f);
-            ftime(iAlgo,1) = mean(result(iAlgo).duration);
+        for iAlgo = 1: length(result_metaheuristc)
+            fmin(iAlgo,1)  = min(result_metaheuristc(iAlgo).f);
+            fmax(iAlgo,1)  = max(result_metaheuristc(iAlgo).f);
+            fmean(iAlgo,1) = mean(result_metaheuristc(iAlgo).f);
+            fstd(iAlgo,1)  = std(result_metaheuristc(iAlgo).f);
+            ftime(iAlgo,1) = mean(result_metaheuristc(iAlgo).duration);
         end
         labels = {'Algorithm', 'Min', 'Max', 'Mean', 'Std', 'CPU time'};
         tabela_max_min_mean_sd_cpu = table(Algorithm, fmin, fmax, fmean, fstd, ftime, 'VariableNames', labels);
@@ -194,19 +198,19 @@ for numFun = 1:numObjs
         % nivel de significancia: 0.05
         alfa = 0.05;
         ref = 'BFS';
-        for i = 1:length(result)
-            if strcmp({result(i).name}, ref)
+        for i = 1:length(result_metaheuristc)
+            if strcmp({result_metaheuristc(i).name}, ref)
                 idRef = i;
                 break;
             end
         end
         itemp = 0;
-        for i = 1:length(result)
+        for i = 1:length(result_metaheuristc)
             if idRef ~= i
                 itemp = itemp + 1;
-                p_value(itemp,1) = signrank(result(idRef).f, result(itemp).f);
+                p_value(itemp,1) = signrank(result_metaheuristc(idRef).f, result_metaheuristc(itemp).f);
                 if p_value(itemp,1) <= alfa
-                    if (median(result(idRef).f - result(itemp).f) > 0)
+                    if (median(result_metaheuristc(idRef).f - result_metaheuristc(itemp).f) > 0)
                         win(itemp,1) = '+';
                     else
                         win(itemp,1) = '-';
@@ -217,7 +221,7 @@ for numFun = 1:numObjs
             end
         end
         tabela_wilcoxon = table(p_value, win);
-        ref_vs = {result([1:idRef-1, idRef+1:end]).name}.';
+        ref_vs = {result_metaheuristc([1:idRef-1, idRef+1:end]).name}.';
         tabela_wilcoxon = addvars(tabela_wilcoxon, ref_vs, 'Before','p_value');
         tabela_wilcoxon.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, allOutputs(iCurve).name);
         vetor_de_tabelas_wilcoxon{iter}.tabela = tabela_wilcoxon;
@@ -226,9 +230,9 @@ for numFun = 1:numObjs
         % Plotar curvas de convergência
         figure
         subplot(2,1,1)
-        for iAlgo = 1: length(result)
-            converg_curve_mean = mean([result(iAlgo).matrizRMSE], 2, 'omitnan');
-            fes = mean([result(iAlgo).matrizfes], 2, 'omitnan');
+        for iAlgo = 1: length(result_metaheuristc)
+            converg_curve_mean = mean([result_metaheuristc(iAlgo).matrizRMSE], 2, 'omitnan');
+            fes = mean([result_metaheuristc(iAlgo).matrizfes], 2, 'omitnan');
             semilogy(fes, converg_curve_mean);
             hold on
         end
@@ -240,8 +244,8 @@ for numFun = 1:numObjs
         
         % Plotar boxplot do f
         subplot(2,1,2)
-        for iAlgo = 1: length(result)
-            vRMSE(:,iAlgo) =  result(iAlgo).f;
+        for iAlgo = 1: length(result_metaheuristc)
+            vRMSE(:,iAlgo) =  result_metaheuristc(iAlgo).f;
         end
         boxplot(vRMSE, selAlgo)
         title(sprintf('%s - %s da %s - boxplot - Modelo: %s', allOutputs(iCurve).name,  metrica, grandeza, modelo))
