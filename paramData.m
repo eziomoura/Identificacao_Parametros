@@ -37,10 +37,10 @@ Param.TLABC.pop = 50;
 Param.TLABC.limit = 200;
 Param.TLABC.F = rand;
 
-Param.PSO.pop = 50;
+Param.PSO.pop = 60;
 Param.PSO.c1 = 2;
 Param.PSO.c2 = 2;
-Param.PSO.w = 1;
+Param.PSO.w = 0.9;
 %Param.PSO.vmax = 50;
 
 Param.ELPSO.pop = 50; % ref[2] - ELPSO.m
@@ -52,4 +52,4 @@ Param.ELPSO.s = 2;   % scale factor of cauchy distribuition
 Param.ELPSO.F = 1.2; % scale factor of DE-based mutation
 
 
-Param.BFS.pop = 45;
+Param.BFS.pop = 85;

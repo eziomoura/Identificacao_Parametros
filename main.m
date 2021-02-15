@@ -7,21 +7,26 @@ clc; clear; close all;
 rng('shuffle');% avoid repeating the same random number arrays when MATLAB restarts
 addpath('.\Outros Algoritmos')
 addpath('.\Funções Objetivo')
-load 'data/allCurves.mat'
+load 'data/todasCurvassel.mat'
 %% options
-selectedCurves = [1,3];
+selectedCurves = 1:length(IVCurves);
+%selectedCurves = [2,4];
 objetivo.metricas = {'RMSE'};
 objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
-objetivo.modelos = {'1D'};     % 1D - um diodo; 2D - dois diodos      
+objetivo.modelos = {'1D', '2D'};     % 1D - um diodo; 2D - dois diodos      
 
-selAlgo = {'BFS','EJADE','SEDE','PGJAYA', 'ITLBO'};  % Vetor com os algoritmos que deseja avaliar
-selAlgo = {'BFS','ABC','DE','PSO', 'TLBO'};
-selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
+selAlgo = {'all'};
+selAlgo = {'MADE', 'BFS'};
+%selAlgo = {'BFS','SEDE', 'EJADE'};
+% selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'ITLBO'};
+% selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'PGJAYA', 'ITLBO', 'ELPSO', 'TLABC', 'IJAYA','CIABC'};  % Vetor com os algoritmos que deseja avaliar %'SEDE','PGJAYA'
+%selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas
-MAX_FES = 50000;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 80e3;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
-listAlgo = {'BFS','ABC','DE','EJADE','IJAYA','ITLBO','JADE','PGJAYA','PSO','TLBO'}; % (nao atualizada) Lista de todos algoritmos disponíveis
+listAlgo = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
+%listAlgoTOTAL = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'DE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 if strcmp(selAlgo{1}, 'all')
     selAlgo = listAlgo;
 end
@@ -53,6 +58,8 @@ for i = 1:length(selectedCurves)
     Imed = [IVCurves(selectedCurves(i)).I];   % Vetor de correntes medidas [A]
     Tc   = [IVCurves(selectedCurves(i)).T];   % Temperatura [ºC]
     Ns   = [IVCurves(selectedCurves(i)).Ns];  % Numero de celulas em serie
+    nome_dispositivo = [IVCurves(selectedCurves(i)).name];
+    fprintf('Testes para a curva %s', nome_dispositivo);
     
     % itera sobre as funcões objetivo desejadas
     for numFun = 1:numObjs
@@ -62,7 +69,7 @@ for i = 1:length(selectedCurves)
         fobj = @fun.Objective;
         
         % Define Limites físicos do modelo
-        [limite_inf, limite_sup] = getLimit(obj_code(numFun).modelo, Ns);
+        [limite_inf, limite_sup] = getLimit(obj_code(numFun).modelo, Ns,IVCurves(selectedCurves(i)));
         
         % itera sobre todos as metaheuristicas
         data = [];
@@ -103,6 +110,7 @@ for i = 1:length(selectedCurves)
                 fprintf('\n Rs(ohms) = %f', Rs(run));
                 fprintf('\n Rp(ohms) = %f', Rp(run));
                 fprintf('\n RMSE = %f *10^-3\n', f(run)*10^3);
+                fprintf('tempo decorrido na estimacao %d', elapsedTime(run));
                 
             end
             % result guarda o resultado de todas metaheuristica para uma
@@ -209,7 +217,7 @@ for numFun = 1:numObjs
         itemp = 1;
         for i = 1:length(result_metaheuristc)
             if  i ~= idRef
-                p_value(itemp,1) = signrank(result_metaheuristc(idRef).f, result_metaheuristc(i).f);
+                p_value(itemp,1) = ranksum(result_metaheuristc(idRef).f, result_metaheuristc(i).f);
                 if p_value(itemp,1) <= alfa
                     if (median(result_metaheuristc(idRef).f - result_metaheuristc(i).f) > 0)
                         win(itemp,1) = '-';
@@ -228,44 +236,36 @@ for numFun = 1:numObjs
         tabela_wilcoxon.Properties.Description = sprintf('%s %s %s - %s', modelo, metrica, grandeza, allOutputs(iCurve).name);
         vetor_de_tabelas_wilcoxon{iter}.tabela = tabela_wilcoxon;
         
-
-        % Plotar curvas de convergência
-        figure
-        subplot(2,1,1)
-        for iAlgo = 1: length(result_metaheuristc)
-            converg_curve_mean = mean([result_metaheuristc(iAlgo).matrizRMSE], 2, 'omitnan');
-            fes = mean([result_metaheuristc(iAlgo).matrizfes], 2, 'omitnan');
-            semilogy(fes, converg_curve_mean);
-            hold on
-        end
-        legend(selAlgo);
-        xlabel('fes', 'FontSize',18);
-        yylabel = sprintf('%s(log)', metrica);
-        ylabel(yylabel, 'FontSize',18);
-        title(sprintf('%s - %s da %s - Curvas de convergência - Modelo: %s', allOutputs(iCurve).name, metrica, grandeza, modelo))
-        
-        % Plotar boxplot do f
-        subplot(2,1,2)
-        for iAlgo = 1: length(result_metaheuristc)
-            vRMSE(:,iAlgo) =  result_metaheuristc(iAlgo).f;
-        end
-        boxplot(vRMSE, selAlgo)
-        title(sprintf('%s - %s da %s - boxplot - Modelo: %s', allOutputs(iCurve).name,  metrica, grandeza, modelo))
-    end
+       end
 end
 %% Exportar tabelas para excel
 % limpa tabelas
-delete('.\resultados\melhores.xlsx','.\resultados\minmaxsdtime.xlsx','.\resultados\wilcoxon_test.xlsx');
+%delete('.\resultados\melhores.xlsx','.\resultados\minmaxsdtime.xlsx','.\resultados\wilcoxon_test.xlsx');
+
+destdirectory = [pwd, '\resultados\', strrep(datestr(datetime), ':', '_')];
+mkdir(destdirectory);   %create the directory
+
 % tabela melhores
+nomearquivo = 'melhores.xlsx';
+fulldestination = fullfile(destdirectory, nomearquivo);
 for i = 1:length(vetor_de_tabelas_melhores)
-    writetable(vetor_de_tabelas_melhores{i}.tabela,'.\resultados\melhores.xlsx','Sheet',vetor_de_tabelas_melhores{i}.tabela.Properties.Description);
+    writetable(vetor_de_tabelas_melhores{i}.tabela,fulldestination,'Sheet',vetor_de_tabelas_melhores{i}.tabela.Properties.Description);
 end
+
 % tabela min max sd time
+nomearquivo = 'minmaxsdtime.xlsx';
+fulldestination = fullfile(destdirectory, nomearquivo);
 for i = 1:length(vetor_de_tabela_max_min_mean_sd_cpu)
-    writetable(vetor_de_tabela_max_min_mean_sd_cpu{i}.tabela,'.\resultados\minmaxsdtime.xlsx','Sheet',vetor_de_tabela_max_min_mean_sd_cpu{i}.tabela.Properties.Description);
+    writetable(vetor_de_tabela_max_min_mean_sd_cpu{i}.tabela,fulldestination,'Sheet',vetor_de_tabela_max_min_mean_sd_cpu{i}.tabela.Properties.Description);
 end
+
 % tabela wilcoxon
+nomearquivo = 'wilcoxon_test.xlsx';
+fulldestination = fullfile(destdirectory, nomearquivo);
 for i = 1:length(vetor_de_tabelas_wilcoxon)
-    writetable(vetor_de_tabelas_wilcoxon{i}.tabela,'.\resultados\wilcoxon_test.xlsx','Sheet',vetor_de_tabelas_wilcoxon{i}.tabela.Properties.Description);
+    writetable(vetor_de_tabelas_wilcoxon{i}.tabela,fulldestination,'Sheet',vetor_de_tabelas_wilcoxon{i}.tabela.Properties.Description);
 end
-beep
+% todos os dados
+nomearquivo = 'OUTPUT.mat';
+fulldestination = fullfile(destdirectory, nomearquivo);
+save(fulldestination, '-v7.3')

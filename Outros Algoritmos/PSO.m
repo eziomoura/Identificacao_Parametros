@@ -1,7 +1,10 @@
 function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     XXXX miniza a fobj usando a metaheurística XXXXX,
-% conforme descrita em [1] e [2].
+%     PSO miniza a fobj usando a metaheurística particle swarm optimization,
+% conforme descrita em [1]. Em [1] não foi indicado a estratégia de
+% tratamento das soluções fora do espaço de busca. Aqui elas são tratadas
+% atribuindo-se seu valor limitante mais próximo.
+%
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
@@ -19,8 +22,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = PSO(fobj, LB, UB, PARAM, MAX_FES
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
-%   [2]
+%   [1] YE, M.; WANG, X.; XU, Y. Parameter extraction of solar cells using particle swarm optimization. Journal of Applied Physics, v. 105, n. 9, p. 0–8, 2009. 
+%
 %% parâmetros do algoritmo
 c1 = PARAM.c1; % personal acceleration coefficient
 c2 = PARAM.c2; % social acceleration coefficien

@@ -2,7 +2,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = ABC(fobj, LB, UB, PARAM, MAX_FES
 % Descrição
 %   ABC minimiza a fobj usando a metaheurística "Artificial
 %  Bee Colony", conforme descrito em [1] e [2]. O parâmetro limit é
-%  especificado na ref [1]. O tratamento das restrições é adotado conforme
+%  especificado na ref [1]. O tratamento das soluções que violam as restrições é adotado conforme
 %  [2].
 %
 % Entradas:

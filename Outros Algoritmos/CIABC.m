@@ -4,13 +4,13 @@
 % algoritmos
 % 3- autor utilizou uma quantidade elevada de fes 
 
-function [xBest, fBest, fBestCurve, fesCurve] = CIABC(fobj, LB, UB, POP_SIZE, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = CIABC(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %   CIABC minimiza a fobj usando a metaheurística "Chaotic Improved Artificial
 %  Bee Colony", conforme descrito em [1]. Na fase 'Scout Bee' o autor diz
 %  que as soluções que excederem o limite de tentativas de melhoramento
 %  serão atualizadas usando a melhor solução ao invés de serem geradas
-%  aleaoriamente. Porém no fluxograma é indicado o contrário. Aqui foi
+%  aleatoriamente. Porém em seu fluxograma é indicado o contrário. Aqui foi
 %  usado a melhor solução.
 %
 % Entradas:
@@ -148,7 +148,7 @@ while(fes + 2*POP_SIZE <= MAX_FES)
     if (trial(ind) > LIMIT)
         [~, idBest] = min(fobjValue);
         trial(ind) = 0;
-        x(ind,:) = x(idBest,:);
+        x(ind,:) = x(idBest,:); % gera uma nova solução em torno da melhor.
         fobjValue(ind) = fobjValue(idBest);
         fitValue(ind) = fitValue(idBest);
     end

@@ -102,7 +102,7 @@ while(fes + POP_SIZE <= MAX_FES)
         end
         %% checa limites
         for d = 1:DIM
-            if xNew(d) < LB(d) | v(i,d) > UB(d)
+            if xNew(d) < LB(d) | xNew(d) > UB(d)
                 xNew(d) = LB(d) + rand*(UB(d) - LB(d)); 
             end
         end
