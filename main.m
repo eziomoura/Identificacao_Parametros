@@ -16,12 +16,12 @@ objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'2D'}%, '2D'};     % 1D - um diodo; 2D - dois diodos      
 
 selAlgo = {'all'};
-selAlgo = {'BFS', 'MADE', 'ITLBO',};
+%selAlgo = {'BFS', 'ITLBO', 'SEDE'};
 % selAlgo = {'PGJAYA', 'IJAYA'};
 % selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'PGJAYA', 'ITLBO', 'ELPSO', 'TLABC', 'IJAYA','CIABC'};  % Vetor com os algoritmos que deseja avaliar %'SEDE','PGJAYA'
 %selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas
-MAX_FES = 50e3;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 80e3;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis

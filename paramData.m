@@ -52,4 +52,4 @@ Param.ELPSO.s = 2;   % scale factor of cauchy distribuition
 Param.ELPSO.F = 1.2; % scale factor of DE-based mutation
 
 
-Param.BFS.pop = 85;
+Param.BFS.pop = 50;
