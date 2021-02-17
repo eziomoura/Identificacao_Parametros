@@ -1,7 +1,7 @@
 function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, PARAM, MAX_FES, seeConverg)
 % Descrição
-%     TLBO miniza a fobj usando a metaheurística XXXXX,
-% conforme descrita em [1] e [2].
+%     TLBO miniza a fobj usando a metaheurística teaching-learning-based optimization,
+% conforme descrita em [1].
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
@@ -19,8 +19,7 @@ function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, PARAM, MAX_FE
 %       final de cada iteração
 %
 % Fontes:
-%   [1] 
-%   [2]
+%   [1] VENKATA RAO, R. Review of applications of tlbo algorithm and a tutorial for beginners to solve the unconstrained and constrained optimization problems. Decision Science Letters, v. 5, n. 1, p. 1–30, 2016. 
 
 %%
 POP_SIZE = PARAM.pop;

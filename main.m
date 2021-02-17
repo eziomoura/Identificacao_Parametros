@@ -10,18 +10,18 @@ addpath('.\Funções Objetivo')
 load 'data/todasCurvassel.mat'
 %% options
 selectedCurves = 1:length(IVCurves);
-selectedCurves = [2,4];
+selectedCurves = [2];
 objetivo.metricas = {'RMSE'};
 objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
-objetivo.modelos = {'1D', '2D'};     % 1D - um diodo; 2D - dois diodos      
+objetivo.modelos = {'2D'}%, '2D'};     % 1D - um diodo; 2D - dois diodos      
 
 selAlgo = {'all'};
-selAlgo = {'EJADE', 'MADE', 'BFS'};
-selAlgo = {'PGJAYA', 'IJAYA'};
+selAlgo = {'BFS', 'MADE', 'ITLBO',};
+% selAlgo = {'PGJAYA', 'IJAYA'};
 % selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'PGJAYA', 'ITLBO', 'ELPSO', 'TLABC', 'IJAYA','CIABC'};  % Vetor com os algoritmos que deseja avaliar %'SEDE','PGJAYA'
 %selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas
-MAX_FES = 80e3;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 50e3;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
@@ -91,6 +91,12 @@ for i = 1:length(selectedCurves)
                     n(run) = x(3);
                     Rs(run) = x(4);
                     Rp(run) = x(5);
+                    
+                    fprintf(' Iph(A) = %f', Iph(run));
+                    fprintf('\n I0(uA) = %f', I0(run)*10^6);
+                    fprintf('\n n = %f', n(run));
+                    fprintf('\n Rs(ohms) = %f', Rs(run));
+                    fprintf('\n Rp(ohms) = %f', Rp(run));
                 elseif obj_code(numFun).modelo == '2D'
                     Iph(run) = x(1);
                     I01(run) = x(2);
@@ -99,15 +105,18 @@ for i = 1:length(selectedCurves)
                     n2(run) = x(5);
                     Rs(run) = x(6);
                     Rp(run) = x(7);
+                    
+                     
+                    fprintf(' Iph(A) = %f', Iph(run));
+                    fprintf('\n I01(uA) = %f', I01(run)*10^6);
+                    fprintf('\n I02(uA) = %f', I02(run)*10^6);
+                    fprintf('\n n1 = %f', n1(run));
+                    fprintf('\n n2 = %f', n2(run));
+                    fprintf('\n Rs(ohms) = %f', Rs(run));
+                    fprintf('\n Rp(ohms) = %f', Rp(run));
                 else 
                     error('verifique o modelo selecionado');
                 end
-                
-                fprintf(' Iph(A) = %f', Iph(run));
-                fprintf('\n I0(uA) = %f', I0(run)*10^6);
-                fprintf('\n n = %f', n(run));
-                fprintf('\n Rs(ohms) = %f', Rs(run));
-                fprintf('\n Rp(ohms) = %f', Rp(run));
                 fprintf('\n RMSE = %f *10^-3\n', f(run)*10^3);
                 fprintf('tempo decorrido na estimacao %d', elapsedTime(run));
                 
@@ -268,3 +277,4 @@ end
 nomearquivo = 'OUTPUT.mat';
 fulldestination = fullfile(destdirectory, nomearquivo);
 save(fulldestination, '-v7.3')
+plotagens
