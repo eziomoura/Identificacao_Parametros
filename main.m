@@ -10,15 +10,14 @@ addpath('.\Funções Objetivo')
 load 'data/todasCurvassel.mat'
 %% options
 selectedCurves = 1:length(IVCurves);
-%selectedCurves = [2,4];
+selectedCurves = [2,4];
 objetivo.metricas = {'RMSE'};
 objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'1D', '2D'};     % 1D - um diodo; 2D - dois diodos      
 
 selAlgo = {'all'};
-selAlgo = {'MADE', 'BFS'};
-%selAlgo = {'BFS','SEDE', 'EJADE'};
-% selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'ITLBO'};
+selAlgo = {'EJADE', 'MADE', 'BFS'};
+selAlgo = {'PGJAYA', 'IJAYA'};
 % selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'PGJAYA', 'ITLBO', 'ELPSO', 'TLABC', 'IJAYA','CIABC'};  % Vetor com os algoritmos que deseja avaliar %'SEDE','PGJAYA'
 %selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas

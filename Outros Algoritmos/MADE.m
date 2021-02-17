@@ -1,7 +1,9 @@
 function [xBest, fBest, fBestCurve, fesCurve] = MADE(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     SHADE minimiza a fobj usando a metaheurística "Success-History based 
-% Adaptive DE" conforme descrito em [1].
+%     MADE minimiza a fobj usando a metaheurística "memetic adaptive
+%     differential evolution" conforme descrito em [1]. Em [2] fica
+%     explícito que o autor utilizou o mesmo esquema de tratamento das
+%     soluções que em SHADE
 %
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -22,6 +24,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = MADE(fobj, LB, UB, PARAM, MAX_FE
 %       final de cada iteração
 %
 % Fontes:
+% [1] LI, S.; GONG, W.; YAN, X.; HU, C.; BAI, D.; WANG, L. Parameter estimation of photovoltaic models with memetic adaptive differential evolution. Solar Energy, v. 190, n. September 2018, p. 465–474, 2019. 
+% [2] https://github.com/wewnyin/wenyingong/blob/master/Software/MADE-code.zip
 %%
 DIM = length(LB); % dimensão do problema
 %% parâmetros do algoritmo
@@ -91,6 +95,15 @@ while(fes + POP_SIZE <= MAX_FES)
         
         % mutation vector v
         v(i,:) = x(i,:) + F.*(x(pbest,:) - x(i,:)) + F.*(x1 - x2);
+        
+        % checa limites de v
+        for d = 1:DIM
+            if v(i,d) < LB(d)
+                v(i,d) = (LB(d) + x(i,d))/2;
+            elseif v(i,d) > UB(d)
+                v(i,d) = (UB(d) + x(i,d))/2;
+            end
+        end
         %% 2 - Crossover
         jrand = randi(DIM);
         for j = 1:DIM
@@ -100,12 +113,7 @@ while(fes + POP_SIZE <= MAX_FES)
                 xNew(j) = x(i,j);
             end
         end
-        %% checa limites
-        for d = 1:DIM
-            if xNew(d) < LB(d) | xNew(d) > UB(d)
-                xNew(d) = LB(d) + rand*(UB(d) - LB(d)); 
-            end
-        end
+
         %% 3 - Selection        
         % avalia a nova posicao
         fitNew = fobj(xNew); % avalia nova posicao

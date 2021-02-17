@@ -1,9 +1,7 @@
 function [xBest, fBest, converg_RMSE, converg_fes] = PGJAYA(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     PGJAYA miniza a fobj usando a metaheurística "performance-guided JAYA",
-% conforme descrita em [1]. Como em [1] não é explicitado a forma de 
-% tratamento das restrições, aqui será atribuido um valor aleatório ao
-% parâmetro que ultrapasse seu limite superior ou inferior.
+% conforme descrita em [1]. 
 %
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -117,7 +115,11 @@ xBest = x(id,:);
 end
 
 function xNew = checkBoundary(xNew, lb, ub, popSize, dim)
-u = (xNew < lb.*ones(popSize,dim)) | (xNew > ub.*ones(popSize,dim));
-randomMatrix = lb.*ones(popSize, dim) + (ub - lb).*ones(popSize, dim).*rand(popSize, dim);
-xNew(u) = randomMatrix(u);
+LBmatrix = repmat(lb, popSize,1);
+UBmatrix = repmat(ub, popSize,1);
+
+u = (xNew < LBmatrix);
+xNew(u) = LBmatrix(u);
+u = xNew > UBmatrix;
+xNew(u) = UBmatrix(u);
 end

@@ -1,7 +1,9 @@
 function [xBest, fBest, fBestCurve, fesCurve] = SEDE(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
-%     SDE minimiza a fobj usando a metaheurística "self-adaptive ensemble-based
+%     SEDE minimiza a fobj usando a metaheurística "self-adaptive ensemble-based
 % differential evolution" conforme descrita em [1].
+% Em [2] é dito que "If the boundary constraint is violated, set the value to be the middle
+% of the previous value and the bound"
 % 
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -96,7 +98,7 @@ while(fes + POP_SIZE <= MAX_FES)
         end
         
         % checa limitantes
-         xNew = boudaryCorrection(xNew, LB, UB, DIM, 1);
+         xNew = boudaryCorrection(xNew, x(i,:), LB, UB);
          
         % avalia a nova posicao
         fitNew = fobj(xNew);
@@ -116,8 +118,12 @@ end
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end
-function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-u = (xNew < LB) | (xNew > UB);
-randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
-xNew(u) = randomMatrix(u);
+function xNew = boudaryCorrection(xNew, x, LB, UB)
+u = (xNew < LB);
+MatrizMedia = (LB + x)/2;
+xNew(u) = MatrizMedia(u);
+
+u = (xNew > UB);
+MatrizMedia = (UB + x)/2;
+xNew(u) = MatrizMedia(u);
 end

@@ -2,9 +2,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = ITLBO(fobj, LB, UB, PARAM, MAX_F
 % Descrição
 %     ITLBO minimiza a fobj usando a metaheurística "Improved Teaching-learning-based",
 % conforme descrita em [1]. Como em [1] não é explicitado a forma de 
-% tratamento das restrições, aqui será atribuido um valor aleatório ao
-% parâmetro que ultrapasse seu limite superior ou inferior.
-%
+% tratamento das restrições, aqui será atribuido o valor extremo limitante
+% mais próximo
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
 %   LB - Vetor linha com os limites inferiores de cada parâmetro
@@ -119,8 +118,12 @@ end
 xBest = x(id,:);
 end
 %%
-function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-u = (xNew < LB) | (xNew > UB);
-randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
-xNew(u) = randomMatrix(u);
+function xNew = boudaryCorrection(xNew, lb, ub, DIM, popSize)
+LBmatrix = repmat(lb, popSize,1);
+UBmatrix = repmat(ub, popSize,1);
+
+u = (xNew < LBmatrix);
+xNew(u) = LBmatrix(u);
+u = xNew > UBmatrix;
+xNew(u) = UBmatrix(u);
 end

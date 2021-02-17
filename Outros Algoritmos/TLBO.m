@@ -1,6 +1,6 @@
 function [xBest, fBest, fBestCurve, fesCurve] = TLBO(fobj, LB, UB, PARAM, MAX_FES, seeConverg)
 % Descrição
-%     XXXX miniza a fobj usando a metaheurística XXXXX,
+%     TLBO miniza a fobj usando a metaheurística XXXXX,
 % conforme descrita em [1] e [2].
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -107,9 +107,12 @@ end
 xBest = x(id,:);
 end
 %%
-function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-%% LB e UB devem ser matrizes com dimensao [POP_SIZE, dim]
-u = (xNew < LB) | (xNew > UB);
-randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
-xNew(u) = randomMatrix(u);
+function xNew = boudaryCorrection(xNew, lb, ub, DIM, popSize)
+LBmatrix = repmat(lb, popSize,1);
+UBmatrix = repmat(ub, popSize,1);
+
+u = (xNew < LBmatrix);
+xNew(u) = LBmatrix(u);
+u = xNew > UBmatrix;
+xNew(u) = UBmatrix(u);
 end

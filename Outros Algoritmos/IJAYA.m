@@ -92,7 +92,11 @@ xBest = x(id,:);
 end
 
 function xNew = checkBoundary(xNew, lb, ub, popSize, dim)
-u = (xNew < lb.*ones(popSize,dim)) | (xNew > ub.*ones(popSize,dim));
-randomMatrix = lb.*ones(popSize, dim) + (ub - lb).*ones(popSize, dim).*rand(popSize, dim);
-xNew(u) = randomMatrix(u);
+LBmatrix = repmat(lb, popSize,1);
+UBmatrix = repmat(ub, popSize,1);
+
+u = (xNew < LBmatrix);
+xNew(u) = LBmatrix(u);
+u = xNew > UBmatrix;
+xNew(u) = UBmatrix(u);
 end

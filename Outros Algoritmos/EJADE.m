@@ -2,6 +2,8 @@ function [xBest, fBest, fBestCurve, fesCurve] = EJADE(fobj, LB, UB, PARAM, MAX_F
 % Descrição
 %     EJADE minimiza a fobj usando a metaheurística "Enhanced Adaptive 
 % Differential Evolution" conforme descrita em [1].
+% Autor não indicou como tratar as solution fora do range de busca. Aqui
+% atribui-se o valor extremo mais próximo.
 % 
 % Entradas:
 %   fobj - Função objetivo a ser minimizada
@@ -144,10 +146,17 @@ end
 xBest = x(id,:);
 end
 
+% function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
+% u = (xNew < LB) | (xNew > UB);
+% randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
+% xNew(u) = randomMatrix(u);
+% end
+
 function xNew = boudaryCorrection(xNew, LB, UB, DIM, POP_SIZE)
-u = (xNew < LB) | (xNew > UB);
-randomMatrix = LB + (UB - LB).*rand(POP_SIZE, DIM);
-xNew(u) = randomMatrix(u);
+u = xNew < LB;
+xNew(u) = LB(u);
+u = xNew > UB;
+xNew(u) = UB(u);
 end
 
 function y = randCauchy(u, c, N)
