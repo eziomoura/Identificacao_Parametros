@@ -1,6 +1,9 @@
-% OBS2: CIABC foi perda de tempo. Ver notas no arquivo
+%%
+% Arquivo demonstracao com codigo que testa os diversos algoritmos
+% implementados aqui
+%
+%
 % OBS: RMSE deve ser retornado como vetor coluna
-% OBS3: pode mudar limites para curvas diferentes (photowatt vs stm6-40)
 %%
 % allOutputs guarda todos os dados necessário à análise
 clc; clear; close all;
@@ -14,13 +17,10 @@ objetivo.metricas = {'RMSE'};
 objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'1D'};     % 1D - um diodo; 2D - dois diodos      
 
-%selAlgo = {'all'};
-selAlgo = {'BFS'};
-% selAlgo = {'PGJAYA', 'IJAYA'};
-% selAlgo = {'BFS','EJADE','SEDE', 'MADE', 'PGJAYA', 'ITLBO', 'ELPSO', 'TLABC', 'IJAYA','CIABC'};  % Vetor com os algoritmos que deseja avaliar %'SEDE','PGJAYA'
-%selAlgo = {'BFS','ABC', 'PSO', 'TLBO'};% Vetor com os algoritmos que deseja avaliar
+selAlgo = {'all'};
+%selAlgo = {'BFS','MADE', 'SEDE', 'ITLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas
-MAX_FES = 80e3;     %50k parece um bom numero    % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 80e3;             % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
 listAlgo = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
@@ -164,7 +164,7 @@ for i = 1: length(selectedCurves)
     end
 end
 
-%% Graficos, tabelas e testes estatisticos
+%% Realiza testes estatisticos e gera tabelas com resultados
 iter = 0;
 for numFun = 1:numObjs
     tabelaBest = [];
@@ -276,4 +276,4 @@ end
 nomearquivo = 'OUTPUT.mat';
 fulldestination = fullfile(destdirectory, nomearquivo);
 save(fulldestination, '-v7.3')
-plotagens
+%plotagens
