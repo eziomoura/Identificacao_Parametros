@@ -7,7 +7,7 @@ DEPARTAMENTO DE ENGENHARIA ELÉTRICA
 
 Trabalho codificado por: Ézio Soares de Moura.
 
-Orientador(a): Dr. Douglas Bressan Riffle
+Orientador(a): Dr. Douglas Bressan Riffel
 
 Coorientadora: Dra. Andrea Araújo Sousa
 
