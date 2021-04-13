@@ -1,4 +1,4 @@
-# Identificao_Parametros
+# Identificação de Parametros Fotovoltaicos
 UNIVERSIDADE FEDERAL DE SERGIPE
 
 CENTRO DE CIÊNCIAS EXATAS E TECNOLOGIA
