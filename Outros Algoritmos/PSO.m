@@ -43,14 +43,16 @@ gBest = x(idBest,:); % global best
 %% pre alocacao
 fes = POP_SIZE;
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
-    fBestCurve = zeros(MAX_ITER + 1, 1);
-    fesCurve = zeros(MAX_ITER + 1, 1);
+    % max_iter  = #fes_paraUsarNoLoop/#quantidade usadada em cada iteração
+    % + a iteração 0
+    MAX_ITER = floor((MAX_FES - fes)/POP_SIZE) + 1;
+    fBestCurve = NaN(MAX_ITER, 1);
+    fesCurve = NaN(MAX_ITER, 1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
 iter = 1;
-while(fes+POP_SIZE <= MAX_FES)
+while(fes + POP_SIZE <= MAX_FES)
     for i = 1:POP_SIZE
         % update velocity
         v(i,:) = w*v(i,:) + c1*rand(1,DIM).*(pBest(i,:) - x(i,:)) + c2*rand(1,DIM).*(gBest - x(i,:));
@@ -87,6 +89,10 @@ while(fes+POP_SIZE <= MAX_FES)
         fesCurve(iter,1) = fes;
     end
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+%
 xBest = gBest;
 fBest = gBestFit;
 end

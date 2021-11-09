@@ -44,16 +44,20 @@ gBest = x(idBest,:); % global best
 %% pre alocacao
 fes = POP_SIZE;
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
-    fBestCurve = zeros(MAX_ITER + 1, 1);
-    fesCurve = zeros(MAX_ITER + 1, 1);
+    MAX_ITER = floor((MAX_FES - fes)/(POP_SIZE + DIM + 4)) + 1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
     fBestCurve(1) = gBestFit;
     fesCurve(1) = fes;
+else
+    fBestCurve = [];
+    fesCurve = [];
 end
 iter = 1;
 while(fes+POP_SIZE <= MAX_FES)
         % calc inercia weight
-        w = 0.9 -(0.5)/(iter/MAX_ITER);
+        % w = 0.9 -(0.5)/(iter/MAX_ITER);
+        w = w - 1/MAX_ITER;
         
     for i = 1:POP_SIZE
         % update velocity
@@ -142,6 +146,10 @@ while(fes+POP_SIZE <= MAX_FES)
         fesCurve(iter,1) = fes;
     end
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+%
 xBest = gBest;
 fBest = gBestFit;
 end

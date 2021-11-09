@@ -1,4 +1,4 @@
-function [xBest, fBest, fBest_curve, fes_curve] = IJAYA(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
+function [xBest, fBest, fBestCurve, fesCurve] = IJAYA(fobj, LB, UB, PARAM, MAX_FES, SHOW_CONVERG)
 % Descrição
 %     IJAYA minimiza a fobj usando a metaheurística "Improved JAYA",
 % conforme descrita em [1].
@@ -30,11 +30,14 @@ fes = POP_SIZE;    % Quantidade de avaliações da função objetivo
 
 %% Dados da curva de convergência
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
-    fBest_curve = zeros(MAX_ITER +1,1);
-    fes_curve = zeros(MAX_ITER +1,1);
-    fBest_curve(1) = min(fit);
-    fes_curve(1) = fes;
+    MAX_ITER = floor((MAX_FES - fes)/(POP_SIZE)) + 1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
+    fBestCurve(1) = min(fit);
+    fesCurve(1) = fes;
+else
+    fBestCurve = [];
+    fesCurve = [];
 end
 z = rand; % Inicializacao do mapa logistico
 iter = 1; % contador de iterações
@@ -83,10 +86,14 @@ while(fes + POP_SIZE <= MAX_FES)
     end % fim da atualiação a posicao de cada individuo
     iter = iter +1;
     if SHOW_CONVERG
-        fBest_curve(iter,1) = min(fit);
-        fes_curve(iter,1) = fes;
+        fBestCurve(iter,1) = min(fit);
+        fesCurve(iter,1) = fes;
     end
 end % encerra quantidade maxima de avaliacoes da funcao objetivo
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+%
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end

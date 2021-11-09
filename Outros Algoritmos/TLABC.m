@@ -40,9 +40,9 @@ trial = zeros(1,POP_SIZE);    % Quantidade de tentativas de melhoramento de uma 
 fes = POP_SIZE;               % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
 if SHOW_CONVERG
-    %    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
-    %     fBestCurve = zeros(MAX_ITER +1,1);
-    %     fesCurve = zeros(MAX_ITER +1,1);
+    MAX_ITER = floor((MAX_FES - fes)/POP_SIZE) + 1;
+    fBestCurve = NaN(MAX_ITER, 1);
+    fesCurve = NaN(MAX_ITER, 1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
@@ -161,12 +161,16 @@ while(fes + 2*POP_SIZE + 2 <= MAX_FES)
     end
     
     % Atualiza curva de convergencia
-    iter = iter +1;
+    iter = iter + 1;
     if SHOW_CONVERG
         fBestCurve(iter,1) = min(fobjValue);
         fesCurve(iter,1) = fes;
     end
 end
+% Remove os NaN em excesso
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+%
 [fBest, id] = min(fobjValue);
 xBest = x(id,:);
 end

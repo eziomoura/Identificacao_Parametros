@@ -50,9 +50,9 @@ fes = POP_SIZE;               % Quantidade de avalições da função objetivo
 
 %% pre alocacao da curva de convergência
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
-    fBestCurve = zeros(MAX_ITER +1,1);
-    fesCurve = zeros(MAX_ITER +1,1);
+    MAX_ITER = floor((MAX_FES - fes)/(POP_SIZE + 1)) + 1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
@@ -100,6 +100,7 @@ while(fes + 2*POP_SIZE <= MAX_FES)
             trial(i) = trial(i) + 1;
         end
     end
+        fes = fes + POP_SIZE;
 
     %% Fase das onlooker bees
     prob = fitValue/sum(fitValue); % probabilidade de uma fonte de comida ser selecionada
@@ -137,9 +138,9 @@ while(fes + 2*POP_SIZE <= MAX_FES)
             else
                 trial(i) = trial(i) + 1;
             end
+            fes = fes + 1;
         end
     end
-    fes = fes + 2*POP_SIZE;
     %% SCOUT BEE
     % Há no máximo uma scout por fase
     % No CIABC é usada a melhor solução ao invés de uma solução aleatória
@@ -152,6 +153,7 @@ while(fes + 2*POP_SIZE <= MAX_FES)
         fobjValue(ind) = fobjValue(idBest);
         fitValue(ind) = fitValue(idBest);
     end
+    fes = fes + 1;
     % Atualiza curva de convergencia
     iter = iter +1;
     if SHOW_CONVERG
@@ -159,6 +161,10 @@ while(fes + 2*POP_SIZE <= MAX_FES)
         fesCurve(iter,1) = fes;
     end
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+
 [fBest, id] = min(fobjValue);
 xBest = x(id,:); 
 end

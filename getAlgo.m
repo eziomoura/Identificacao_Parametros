@@ -3,7 +3,35 @@ switch algoSelected
     case 'BFS'
         f = @BFS;
         param = paramData.BFS;
+    case 'BFSmod'
+        f = @BFSmod;
+        param = paramData.BFSmod;
+
+    case 'BFSmod3'
+        f = @BFSmod3;
+        param = paramData.BFSmod;
+
+    case 'BFS3'
+        f = @BFS3;
+        param = paramData.BFSnew;
+    case 'BFS4'
+        f = @BFS4;
+        param = paramData.BFSnew;
+    case 'BFS5'
+        f = @BFS5;
+        param = paramData.BFSnew;
+    case 'BFSnew'
+        f = @BFSnew;
+        param = paramData.BFSnew;
         
+    case 'BFSnewBeta'
+        f = @BFSnewBeta;
+        param = paramData.BFSnew;
+        
+            case 'BFS2'
+        f = @BFS2;
+        param = paramData.BFSnew;
+  %-------------      
     case 'SHADE'
         f = @SHADE;
         param = paramData.SHADE;  

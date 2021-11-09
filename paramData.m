@@ -25,6 +25,8 @@ Param.SHADE.H = 100;  % ref[1] em SHADE.m
 Param.MADE.pop = 50; % ref[1] em MADE.m
 Param.MADE.H = 100;  % ref[1] em MADE.m
 Param.MADE.epsilon = 0.05;  % ref[1] em MADE.m, criterio para aplicar NM: f(x) < epsilon
+%Param.MADE.epsilon = 0.01;  % para DDM
+
 
 
 Param.IJAYA.pop = 50;
@@ -53,3 +55,7 @@ Param.ELPSO.F = 1.2; % scale factor of DE-based mutation
 
 
 Param.BFS.pop = 50;
+Param.BFSmod.pop = 50;
+Param.BFSnew.pop = 50;
+Param.BFSnew.popMax = 50; % 
+Param.BFSnew.popMin = 4;  % 

@@ -33,15 +33,16 @@ fit = fobj(x);
 
 fes = POP_SIZE; % contador de avaliacoes da funcao objetivo
 
-% pre-alocacao de memoria
-MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
-
 % pre alocacao da curva de convergência
 if SHOW_CONVERG
-    fBestCurve = zeros(MAX_ITER + 1, 1);
-    fesCurve =  zeros(MAX_ITER + 1, 1);
+    MAX_ITER = floor((MAX_FES - fes)/(2*POP_SIZE)) + 1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
     fBestCurve(1) = min(fit);
     fesCurve(1) = fes;
+else
+    fBestCurve = [];
+    fesCurve = [];
 end
 
 iter = 1; % contador de iteracoes
@@ -113,6 +114,10 @@ while(fes+2*POP_SIZE <= MAX_FES)
         fesCurve(iter) = fes;
     end  
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+%
 % Melhor solução
 [fBest, id] = min(fit);
 xBest = x(id,:);

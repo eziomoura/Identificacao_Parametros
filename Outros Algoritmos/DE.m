@@ -36,9 +36,9 @@ x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
 fes = POP_SIZE;
 if SHOW_CONVERG
-    MAX_ITER = (MAX_FES - POP_SIZE)/POP_SIZE;
-    fBestCurve = zeros(MAX_ITER,1);
-    fesCurve = zeros(MAX_ITER,1);
+    MAX_ITER = floor((MAX_FES -fes)/POP_SIZE) +1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
     fBestCurve(1) = min(fit);
     fesCurve(1) = fes;
 end
@@ -78,6 +78,10 @@ while(fes + POP_SIZE <= MAX_FES)
         fesCurve(iter) = fes;
     end
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end

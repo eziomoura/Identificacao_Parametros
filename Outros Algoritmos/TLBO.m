@@ -31,18 +31,18 @@ fit = fobj(x);
 fes = POP_SIZE; % contador de avaliacoes da funcao objetivo
 
 % pre-alocacao de memoria
-MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
+MAX_ITER = floor((MAX_FES - fes)/(2*POP_SIZE)) + 1;
 
 % pre alocacao da curva de convergência
 if seeConverg
-    fBestCurve = zeros(MAX_ITER + 1, 1);
-    fesCurve =  zeros(MAX_ITER + 1, 1);
+    fBestCurve = NaN(MAX_ITER, 1);
+    fesCurve =  NaN(MAX_ITER, 1);
     fBestCurve(1) = min(fit);
     fesCurve(1) = fes;
 end
 
 iter = 1; % contador de iteracoes
-while(fes+2*POP_SIZE <= MAX_FES)
+while(fes + 2*POP_SIZE <= MAX_FES)
     for i = 1:POP_SIZE
        %% Teacher Phase
         xMean = mean(x);
@@ -101,6 +101,10 @@ while(fes+2*POP_SIZE <= MAX_FES)
         fesCurve(iter) = fes;
     end  
 end
+% Remove os NaN em excesso
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+
 % retorna a melhor solução
 [fBest, id] = min(fit);
 xBest = x(id,:);

@@ -74,7 +74,7 @@ while fes + (2+n) <= maxFes
             % 3- Expand
             xe = (1 + rho*chi)*xcen - rho*chi*s(end,:);
             fxe = fobj(xe);
-            fes = fes+1;
+            fes = fes + 1;
             if fxe < fr
                 s(end,:) = xe;
                 f(end) = fxe;

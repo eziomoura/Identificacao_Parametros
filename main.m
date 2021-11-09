@@ -12,7 +12,8 @@ addpath('.\Outros Algoritmos')
 addpath('.\Funções Objetivo')
 load 'data/todasCurvassel.mat'
 %% options
-selectedCurves = 1:length(IVCurves);
+selectedCurves = 2;
+% selectedCurves = 1:length(IVCurves);
 objetivo.metricas = {'RMSE'};
 objetivo.grandezas = {'I',};   % I - current, P- Power, V - Voltage
 objetivo.modelos = {'1D'};     % 1D - um diodo; 2D - dois diodos      
@@ -20,10 +21,11 @@ objetivo.modelos = {'1D'};     % 1D - um diodo; 2D - dois diodos
 selAlgo = {'all'};
 %selAlgo = {'BFS','MADE', 'SEDE', 'ITLBO'};% Vetor com os algoritmos que deseja avaliar
 RUNS = 30;                  % quantidade de execuções distintas
-MAX_FES = 80e3;             % numero maximo de avalicoes da funcao objetivo
+MAX_FES = 1e3;             % numero maximo de avalicoes da funcao objetivo
 paramData;                  % carrega parametros configurados para cada algoritmo
 
-listAlgo = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
+listAlgo = {'BFS','BFSmod', 'SHADE'};
+% listAlgo = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 %listAlgoTOTAL = {'BFS','SHADE', 'MADE', 'SEDE', 'EJADE', 'DE', 'TLBO', 'ITLBO', 'TLABC', 'ABC', 'CIABC', 'PSO', 'ELPSO', 'IJAYA', 'PGJAYA'}; % (nao atualizada) Lista de todos algoritmos disponíveis
 if strcmp(selAlgo{1}, 'all')
     selAlgo = listAlgo;
@@ -277,3 +279,39 @@ nomearquivo = 'OUTPUT.mat';
 fulldestination = fullfile(destdirectory, nomearquivo);
 save(fulldestination, '-v7.3')
 %plotagens
+
+for numFun = 1:numObjs
+    for iCurve = 1:length(selectedCurves)
+        iter = iter + 1;
+        result_metaheuristc  = allOutputs(iCurve).model(numFun).result;
+        modelo   = allOutputs(iCurve).model(numFun).modelo;
+        metrica  = allOutputs(iCurve).model(numFun).metrica;
+        grandeza = allOutputs(iCurve).model(numFun).grandeza;
+        pasta_saida_figuras = [destdirectory, '\',strrep(allOutputs(iCurve).name,' ','')]; 
+        
+        %%%%%
+        % Plotar curvas de convergência
+        fig = figure;
+        
+        for iAlgo = 1: length(result_metaheuristc)
+            converg_curve_mean = mean([result_metaheuristc(iAlgo).matrizRMSE], 2, 'omitnan');
+            fes = mean([result_metaheuristc(iAlgo).matrizfes], 2, 'omitnan');
+            if rem(iAlgo,2) == 0 %strcmp(result_metaheuristc(iAlgo).name, 'BFS')
+                semilogy(fes, converg_curve_mean,'--');
+            else
+                semilogy(fes, converg_curve_mean,'-');
+            end
+            hold on
+            cores(iAlgo, :) = fig.Color;
+        end
+        legenda = legend(selAlgo);
+        xlabel('fes', 'FontSize',18);
+        yylabel = sprintf('%s(log)', metrica);
+        ylabel(yylabel, 'FontSize',18);
+        plt = Plot();
+        legenda.Location = 'eastoutside';
+        eixos = gca;
+        eixos.XLim = [-0.02*max(max(fes)), max(max(fes))];
+        eixos.YLim = eixos.YLim - 0.6*eixos.YLim;
+    end
+end

@@ -38,15 +38,18 @@ xArchived = [];
 x = LB + (UB - LB).*rand(pop, DIM);
 fit = fobj(x);
 fes = pop;
-% if seeConverg
-%     conver_curve = zeros(1, MAX_FES/pop);  população muda de tamanho,
-%     cuidado!!!
-% end
 iter = 1;
 if SHOW_CONVERG
-        fBestCurve(iter,1) = min(fit);
-        fesCurve(iter,1) = fes;
+    MAX_ITER = floor((MAX_FES - fes)/POP_MIN) + 1; % numero  maximo (com folga) de iterações
+    fBestCurve = NaN(MAX_ITER, 1);
+    fesCurve =  NaN(MAX_ITER, 1);
+    fBestCurve(1) = min(fit);
+    fesCurve(1) = fes;
+else 
+    fBest_curve = NaN; fes_curve = NaN;
 end
+
+
 while(fes + pop <= MAX_FES)
     S_CR = []; S_F = [];
 
@@ -128,7 +131,7 @@ while(fes + pop <= MAX_FES)
     uF = (1 - c)*uF + c*lehmarMean(S_F);
     fes = fes + pop; % number of objective function evaluation
     % redução da populacao
-    newpop = floor((POP_MIN - POP_MAX)/MAX_FES*fes + POP_MAX);
+    newpop = floor(fes*(POP_MIN - POP_MAX)/MAX_FES + POP_MAX);
     [~, id] = sort(fit,'descend');
     
     % pop reduction
@@ -136,12 +139,16 @@ while(fes + pop <= MAX_FES)
     fit(id(1:pop-newpop)) = [];
     pop = newpop;
     
+    iter = iter+1;
     if SHOW_CONVERG
         fBestCurve(iter,1) = min(fit);
         fesCurve(iter,1) = fes;
     end
-    iter = iter+1;
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end

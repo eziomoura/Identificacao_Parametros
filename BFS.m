@@ -30,9 +30,11 @@ x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);    % fitness de cada individuo
 fes = POP_SIZE;   % quantidade de avaliação da função objetivo
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/(3*POP_SIZE)); % numero maximo de iterações
-    fBest_curve = zeros(MAX_ITER + 1, 1);
-    fes_curve =  zeros(MAX_ITER + 1, 1);
+    % max_iter  = #fes_paraUsarNoLoop/#quantidade usadada em cada iteração
+    % + a iteração 0
+    MAX_ITER = floor((MAX_FES - fes)/(3*POP_SIZE)) + 1; % numero maximo de iterações
+    fBest_curve = zeros(MAX_ITER, 1);
+    fes_curve =  zeros(MAX_ITER, 1);
     fBest_curve(1) = min(fit);
     fes_curve(1) = fes;
 else 

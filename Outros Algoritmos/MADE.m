@@ -43,12 +43,21 @@ xArchived = [];
 fitArchived = [];
 x = LB + (UB - LB).*rand(POP_SIZE, DIM);
 fit = fobj(x);
-iter = 1; k = 1;
+iter = 0; 
+k = 1;
 fes = POP_SIZE;
+
 if SHOW_CONVERG
-    fBestCurve(iter) = min(fit);
-    fesCurve(iter) = fes;
+    MAX_ITER = floor((MAX_FES - fes)/POP_SIZE) + 1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
+    fBestCurve(1) = min(fit);
+    fesCurve(1) = fes;
+else
+    fBestCurve = [];
+    fesCurve = [];
 end
+
 while(fes + POP_SIZE <= MAX_FES)
     S_CR = []; S_F = []; df =[];
     [~, id] = sort(fit);
@@ -149,17 +158,21 @@ while(fes + POP_SIZE <= MAX_FES)
         uCR(k) = sum(w.*S_CR);
         uF(k)  = sum(w.*S_F.^2)/sum(w.*S_F);
         k = k+1;
-        if k>H
+        if k > H
             k=1;
         end
     end
-    
+        iter = iter + 1;
     if SHOW_CONVERG
-        fBestCurve(iter+1,1) = min(fit);
-        fesCurve(iter+1,1) = fes;
+        fBestCurve(iter,1) = min(fit);
+        fesCurve(iter,1) = fes;
     end
-    iter = iter + 1;
+
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+%
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end

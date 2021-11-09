@@ -32,18 +32,21 @@ fes = POP_SIZE; % Quantidade de avaliações da função objetivo
 
 %% Dados para a curva de convergência
 if SHOW_CONVERG
-    MAX_ITER = floor((MAX_FES - POP_SIZE)/POP_SIZE);
-    converg_RMSE = zeros(MAX_ITER +1,1);
-    converg_fes = zeros(MAX_ITER +1,1);
+    MAX_ITER = floor((MAX_FES - fes)/POP_SIZE) + 1;
+    converg_RMSE = NaN(MAX_ITER, 1);
+    converg_fes = NaN(MAX_ITER, 1);
     converg_RMSE(1) = min(fit);
     converg_fes(1) = fes;
+else
+    converg_RMSE(1) = NaN;
+    converg_fes(1) = NaN;   
 end
 z = rand; % Inicializacao do mapa logistico
 iter = 1; % contador de iterações
 
 R = POP_SIZE - (1:POP_SIZE);
 P = (R/POP_SIZE).^2;      % vetor de probabilidades
-while(fes + POP_SIZE <= MAX_FES)
+while(fes + POP_SIZE +1 <= MAX_FES)
     %% identifica o melhor e o pior
     [~,id] = sort(fit);
     prob(id) = P;
@@ -106,10 +109,14 @@ while(fes + POP_SIZE <= MAX_FES)
     
     iter = iter +1;
     if SHOW_CONVERG
-        converg_RMSE(iter,1) = min(fit);
-        converg_fes(iter,1) = fes;
+        converg_RMSE(iter, 1) = min(fit);
+        converg_fes(iter, 1) = fes;
     end
 end % encerra quantidade maxima de avaliacoes da funcao objetivo
+% Remove os NaN em excesso
+converg_RMSE = converg_RMSE(1:iter, 1);
+converg_fes = converg_fes(1:iter, 1);
+
 [fBest, id] = min(fit);
 xBest = x(id,:);
 end

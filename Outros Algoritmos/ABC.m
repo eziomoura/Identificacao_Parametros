@@ -42,9 +42,9 @@ trial = zeros(1,NUM_FOODS);    % Quantidade de tentativas de melhoramento de uma
 fes = NUM_FOODS;               % Quantidade de avalições da função objetivo
 %% pre alocacao da curva de convergência
 if SHOW_CONVERG
-%    MAX_ITER = floor((MAX_FES - POP_SIZE)/(2*POP_SIZE));
-%     fBestCurve = zeros(MAX_ITER +1,1);
-%     fesCurve = zeros(MAX_ITER +1,1);
+    MAX_ITER = floor(MAX_FES/(NUM_FOODS +1)) + 1;
+    fBestCurve = NaN(MAX_ITER,1);
+    fesCurve = NaN(MAX_ITER,1);
     fBestCurve(1) = min(fobjValue);
     fesCurve(1) = fes;
 end
@@ -149,6 +149,10 @@ while(fes + 2*NUM_FOODS + 1 <= MAX_FES)
         fesCurve(iter,1) = fes;
     end
 end
+% Remove NaNs
+fBestCurve = fBestCurve(1:iter, 1);
+fesCurve = fesCurve(1:iter, 1);
+
 [fBest, id] = min(fobjValue);
 xBest = x(id,:); 
 end
